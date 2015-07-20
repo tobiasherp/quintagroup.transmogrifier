@@ -9,7 +9,7 @@ from collective.transmogrifier.utils import defaultMatcher
 from Products.GenericSetup import context
 from Products.CMFCore import utils
 
-# import monkey pathes for GS TarballContext
+# import monkey patches for GS TarballContext
 import quintagroup.transmogrifier.patches
 
 class WriterSection(object):

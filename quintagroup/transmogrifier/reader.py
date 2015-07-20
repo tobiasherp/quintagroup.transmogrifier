@@ -14,7 +14,7 @@ except ImportError:
 from Products.GenericSetup import context
 from Products.CMFCore import utils
 
-# import monkey pathes for GS TarballContext
+# import monkey patches for GS TarballContext
 import quintagroup.transmogrifier.patches
 from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
