@@ -24,6 +24,8 @@ EXPORT_CONFIG = 'export'
 IMPORT_CONFIG = 'import'
 
 CONFIGFILE = None
+
+
 def registerPersistentConfig(site, type_):
     """ Try to get persistent pipeline configuration of given type (export or import)
         and register it for use with transmogrifier.
@@ -51,10 +53,10 @@ def registerPersistentConfig(site, type_):
     else:
         return None
 
+
 def exportSiteStructure(context):
 
     transmogrifier = ITransmogrifier(context.getSite())
-
     # we don't use transmogrifer's __call__ method, because we need to do
     # some modification in pipeline sections
 
@@ -87,7 +89,8 @@ def exportSiteStructure(context):
 
     # Pipeline execution
     for item in pipeline:
-        pass # discard once processed
+        pass  # discard once processed
+
 
 def importSiteStructure(context):
 
@@ -97,7 +100,6 @@ def importSiteStructure(context):
             return
 
     transmogrifier = ITransmogrifier(context.getSite())
-
     # we don't use transmogrifer's __call__ method, because we need to do
     # some modification in pipeline sections
 
@@ -134,7 +136,7 @@ def importSiteStructure(context):
 
     # Pipeline execution
     for item in pipeline:
-        pass # discard once processed
+        pass  # discard once processed
 
 
 class PloneSiteImporter(object):

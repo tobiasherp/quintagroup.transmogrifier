@@ -25,10 +25,9 @@ class LocalRolesAttribute(base.LocalRolesAttribute):
         for user_id, role in values:
             instance.manage_addLocalRoles(user_id, [role])
 
-
     def processXml(self, context, node):
-        nsprefix = node.tag[:node.tag.find('}')+1]
-        local_roles = node.findall(nsprefix+self.field_id)
+        nsprefix = node.tag[:node.tag.find('}') + 1]
+        local_roles = node.findall(nsprefix + self.field_id)
 
         if len(local_roles) == 0:
             return
@@ -60,9 +59,9 @@ class WorkflowAttribute(base.WorkflowAttribute):
         history = super(WorkflowAttribute, self).get(instance)
 
         fixed_history = {}
-	for workflow, actions in history.items():
-           fixed_history[workflow] = tuple(
-		[{'action': action['action'],
+        for workflow, actions in history.items():
+            fixed_history[workflow] = tuple(
+            [{'action': action['action'],
                   'review_state': safe_utf8(action['review_state']),
                   'actor': safe_utf8(action['actor']),
                   'comments': safe_utf8(action['comments']),
@@ -75,5 +74,5 @@ class CMF(base.CMF):
     attributes = (
         base.TypeAttribute('type'),
         WorkflowAttribute('workflow_history'),
-        LocalRolesAttribute('security','local_role'),
+        LocalRolesAttribute('security', 'local_role'),
         )

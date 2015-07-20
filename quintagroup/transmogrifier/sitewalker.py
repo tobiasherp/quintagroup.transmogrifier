@@ -10,6 +10,7 @@ from Products.Archetypes.interfaces import IBaseFolder
 
 from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
+
 class SiteWalkerSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

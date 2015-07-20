@@ -7,6 +7,7 @@ from collective.transmogrifier.utils import defaultMatcher
 from quintagroup.transmogrifier.interfaces import IExportDataCorrector
 from quintagroup.transmogrifier.interfaces import IImportDataCorrector
 
+
 class DataCorrectorSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -38,16 +39,19 @@ class DataCorrectorSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey and self.sources):
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             file_store = item[fileskey]
             if not file_store:
-                yield item; continue
+                yield item
+                continue
 
             for name in self.sources:
                 if not name in file_store:

@@ -53,12 +53,13 @@ class RoundtrippingTests(TransmogrifierTestCase):
 
     def recursive_comparison(self, comparison):
         report = {
-            'diff_files' : comparison.diff_files,
-            'funny_files' : comparison.funny_files
+            'diff_files': comparison.diff_files,
+            'funny_files': comparison.funny_files
         }
         for sd in comparison.subdirs.itervalues():
             report.update(self.recursive_comparison(sd))
         return report
+
     def prepare_navigation(self):
         """
         Before we start to export plone 3.x site content we
@@ -167,6 +168,6 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.assertEqual(target_related,
             ['/target/events/party', '/target/news/hold-the-press'])
 
+
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)
-

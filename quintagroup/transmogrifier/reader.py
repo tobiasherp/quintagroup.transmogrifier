@@ -18,6 +18,7 @@ from Products.CMFCore import utils
 import quintagroup.transmogrifier.patches
 from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
+
 class ReaderSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -88,7 +89,8 @@ class ReaderSection(object):
         item = {self.pathkey: '/'.join(path.split(os.sep))}
         for name in names:
             full_name = os.path.join(top, name)
-            if self.import_context.isDirectory(full_name): continue
+            if self.import_context.isDirectory(full_name):
+                continue
             section = self.options.get(name, name).strip()
             files = item.setdefault(self.fileskey, {})
             files[section] = {

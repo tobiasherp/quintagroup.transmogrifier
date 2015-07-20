@@ -12,6 +12,8 @@ import re
 # which are handled properly by python xml libraries such
 # as xml.dom.minidom and elementtree
 _ctrl_chars = re.compile(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f]')
+
+
 def has_ctrlchars(value):
     if _ctrl_chars.search(value):
         return True

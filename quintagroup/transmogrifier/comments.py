@@ -12,6 +12,7 @@ from collective.transmogrifier.utils import defaultMatcher
 import logging
 logger = logging.getLogger("CommentsMarshaller")
 
+
 class CommentsExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -30,12 +31,14 @@ class CommentsExporterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             # check if object has comments
             discussion_container = getattr(aq_base(obj), 'talkback', None)
@@ -98,6 +101,7 @@ class CommentsExporterSection(object):
         self.doc.unlink()
         return data
 
+
 class CommentsImporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -117,15 +121,18 @@ class CommentsImporterSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
 
             if 'comments' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             # allow discussion if it wasn't allowed (because we have comments)
             try:

@@ -16,6 +16,7 @@ try:
 except ImportError:
     HAS_BLOB = False
 
+
 class FileExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -41,12 +42,14 @@ class FileExporterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 schema = obj.Schema()
@@ -176,14 +179,17 @@ class FileImporterSection(object):
             contextkey = self.contextkey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
             if 'file-fields' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 try:
@@ -206,9 +212,9 @@ class FileImporterSection(object):
                     raise
                 except Exception:
                     print "Exception in fileimporter section:"
-                    print '-'*60
+                    print '-' * 60
                     traceback.print_exc()
-                    print '-'*60
+                    print '-' * 60
 
             yield item
 

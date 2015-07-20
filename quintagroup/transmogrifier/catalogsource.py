@@ -14,6 +14,7 @@ from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
 logger = logging.getLogger("CatalogSourceSection")
 
+
 class CatalogSourceSection(object):
     """
 
@@ -83,7 +84,7 @@ class CatalogSourceSection(object):
             # content objects to which they correspond
             # we need to skip them
             if brain.portal_type == 'Discussion Item':
-                path =  '/'.join(brain.getPath().split('/')[:-2])
+                path = '/'.join(brain.getPath().split('/')[:-2])
                 cp, id_ = path.rsplit('/', 1)
                 brain = self.catalog(path=cp, id=id_)[0]
             else:
@@ -137,9 +138,9 @@ class CatalogSourceSection(object):
                 obj = self.context.restrictedTraverse(path)
                 if obj.Type() == 'Collection':
                     for crit in contained:
-                        yield {'_type':crit[1], '_path':item['_path']+'/'+crit[0]}
+                        yield {'_type': crit[1], '_path': item['_path'] + '/' + crit[0]}
             except:
-                logging.info("ERROR Traversing obj: %s"%path)
+                logging.info("ERROR Traversing obj: %s" % path)
             yield item
 
         # cleanup
@@ -156,7 +157,6 @@ class CatalogSourceSection(object):
         """
         results = []
         seen = []
-
 
         # Remove the original path element from the query if there was one
         query = copy.deepcopy(self.query)
@@ -176,7 +176,7 @@ class CatalogSourceSection(object):
                 # object stored in subfolders, we need append to results their parent folder
                 parent_path = '/'.join([path, relative.split('/', 1)[0]])
                 if parent_path not in seen:
-                    res = self.catalog(path=path) #, meta_type='Folder')
+                    res = self.catalog(path=path)  # , meta_type='Folder')
                     for i in res:
                         if i.getPath() == parent_path:
                             results.append(i)
@@ -186,7 +186,6 @@ class CatalogSourceSection(object):
                 # object is directly stored in folder, that has path given in query
                 seen.append(current)
                 results.append(brain)
-
         # Work around the issue if our catalog query has been by path
         # -> do not include path search term twice in the query.
         # Note that this may lead to incorrect results
@@ -212,15 +211,15 @@ class CatalogSourceSection(object):
             # Filter contained results against our query, so that
             # we do not export results from parent objects which did not match
             # Build list of allowed object UIDs -
-            allowed_uids = [ r["UID"] for r in original_results ]
+            allowed_uids = [r["UID"] for r in original_results]
 
             # All parents must be allowed always
-            filtered_results = [ r for r in results if filter(r) == True  ]
+            filtered_results = [r for r in results if filter(r) == True]
         else:
             # Don't filter child items
             filtered_results = results
 
-        contained = [(i.getId, str(i.portal_type)) for i in filtered_results ]
+        contained = [(i.getId, str(i.portal_type)) for i in filtered_results]
 
         # list Collection criteria
         try:
@@ -228,6 +227,6 @@ class CatalogSourceSection(object):
             if obj.Type() == 'Collection':
                 contained = [(str(i.id), str(i.portal_type)) for i in obj.objectValues()]
         except:
-            logging.info("ERROR Traversing obj: %s"%path)
+            logging.info("ERROR Traversing obj: %s" % path)
 
         return tuple(contained)

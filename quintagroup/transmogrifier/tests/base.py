@@ -7,7 +7,6 @@ from Products.CMFPlone.utils import versionTupleFromString, getToolByName
 
 from quintagroup.transmogrifier import testing
 
-
 ptc.setupPloneSite()
 
 
@@ -33,6 +32,7 @@ class TransmogrifierTestCase(ptc.PloneTestCase):
             version = versionTupleFromString(self.pm.getFileSystemVersion())
 
         return version
+
 
 class TransmogrifierFunctionalTestCase(ptc.FunctionalTestCase):
     """ base class for functional tests """

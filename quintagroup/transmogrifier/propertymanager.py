@@ -10,6 +10,7 @@ from collective.transmogrifier.utils import defaultMatcher
 from OFS.interfaces import IPropertyManager
 from Products.GenericSetup.utils import PropertyManagerHelpers, NodeAdapterBase
 
+
 class Helper(PropertyManagerHelpers, NodeAdapterBase):
     """ We need this class because PropertyManagerHelpers in _initProperties
         method uses _convertToBoolean and _getNodeText methods from
@@ -139,6 +140,7 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
 
             obj._updateProperty(prop_id, prop_value)
 
+
 class PropertiesExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -166,12 +168,14 @@ class PropertiesExporterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IPropertyManager.providedBy(obj):
                 data = None
@@ -197,6 +201,7 @@ class PropertiesExporterSection(object):
                     }
 
             yield item
+
 
 class PropertiesImporterSection(object):
     classProvides(ISectionBlueprint)
@@ -224,14 +229,17 @@ class PropertiesImporterSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
             if 'propertymanager' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IPropertyManager.providedBy(obj):
                 data = None

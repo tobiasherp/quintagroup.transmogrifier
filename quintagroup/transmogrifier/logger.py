@@ -10,6 +10,7 @@ from collective.transmogrifier.utils import Matcher
 
 VALIDATIONKEY = 'quintagroup.transmogrifier.logger'
 
+
 class LoggerSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -50,7 +51,7 @@ class LoggerSection(object):
         if self.storage:
             problematic = len(self.storage)
             logging.getLogger(self.logger).warning('\nNext objects didn\'t go through full pipeline:\n%s' % \
-                '\n'.join(['\t'+i for i in self.storage]))
+                '\n'.join(['\t' + i for i in self.storage]))
         # delete validation data from annotations
         anno = IAnnotations(self.transmogrifier)
         if VALIDATIONKEY in anno:

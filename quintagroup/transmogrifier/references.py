@@ -9,6 +9,7 @@ from Products.Archetypes import config as atcfg
 # next global variables (this must be changed)
 from quintagroup.transmogrifier.adapters.importing import EXISTING_UIDS, REFERENCE_QUEUE
 
+
 class ReferencesImporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

@@ -12,6 +12,7 @@ from Products.CMFCore import utils
 # import monkey patches for GS TarballContext
 import quintagroup.transmogrifier.patches
 
+
 class WriterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -37,7 +38,7 @@ class WriterSection(object):
         elif context_type == 'tarball':
             self.export_context = context.TarballExportContext(setup_tool)
         elif context_type == 'snapshot':
-            items = ('snapshot',) + time.gmtime()[:6]
+            items = ('snapshot', ) + time.gmtime()[:6]
             snapshot_id = '%s-%4d%02d%02d%02d%02d%02d' % items
             self.export_context = context.SnapshotExportContext(setup_tool, snapshot_id)
         else:
@@ -50,8 +51,9 @@ class WriterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
 
-            if not (pathkey and fileskey): # path doesn't exist or no data to write
-                yield item; continue
+            if not (pathkey and fileskey):  # path doesn't exist or no data to write
+                yield item
+                continue
 
             path = item[pathkey]
 

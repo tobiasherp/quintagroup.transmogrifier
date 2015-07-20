@@ -14,6 +14,7 @@ from quintagroup.transmogrifier.interfaces import IImportDataCorrector
 EXISTING_UIDS = {}
 REFERENCE_QUEUE = {}
 
+
 class ReferenceImporter(object):
     """ Demarshall content from xml file by using of Marshall product.
     """

@@ -8,6 +8,7 @@ from Acquisition import aq_inner
 
 ANNOKEY = 'quintagroup.transmogrifier.config'
 
+
 class PipelineConfigView(BrowserView):
     """ View for setting persistent pipeline config.
     """
@@ -23,7 +24,7 @@ class PipelineConfigView(BrowserView):
             stat = []
             # handle export config
             export_config = self.request.form['export'].strip()
-            expkey = ANNOKEY+'.export'
+            expkey = ANNOKEY + '.export'
             oldconfig = self.getConfig('export')
             if export_config and self._configChanged(oldconfig, export_config):
                 self.anno[expkey] = export_config
@@ -33,7 +34,7 @@ class PipelineConfigView(BrowserView):
                 stat.append('removed export')
             # handle import config
             import_config = self.request.form['import'].strip()
-            impkey = ANNOKEY+'.import'
+            impkey = ANNOKEY + '.import'
             oldconfig = self.getConfig('import')
             if import_config and self._configChanged(oldconfig, import_config):
                 self.anno[impkey] = import_config
@@ -45,7 +46,7 @@ class PipelineConfigView(BrowserView):
                 self.status = 'Changes: %s configuration.' % ' and '.join(stat)
             else:
                 self.status = 'No changes'
-	elif self.request.form.get('do_export') is not None:
+        elif self.request.form.get('do_export') is not None:
             gs_tool = getToolByName(aq_inner(self.context), 'portal_setup')
             RESPONSE = self.request.RESPONSE
             return gs_tool.manage_exportSelectedSteps(['content_quinta'], RESPONSE)

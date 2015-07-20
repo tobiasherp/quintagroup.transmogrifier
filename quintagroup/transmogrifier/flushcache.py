@@ -2,6 +2,7 @@ from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 
+
 class FlushCacheSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

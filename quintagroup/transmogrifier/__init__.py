@@ -1,6 +1,7 @@
 # this is a package
 import namespaces
 
+
 def patch():
     # Apply patch to Plone, if we are on a version before
     # the fix of XXX was applied
@@ -30,7 +31,7 @@ def patch():
                 # CMF-only site, or a test run.
                 return
             installed_version = gs.getLastVersionForProfile(profile_id)
-            if installed_version == (u'latest',):
+            if installed_version == (u'latest', ):
                 actual_version = qi.getLatestUpgradeStep(profile_id)
                 gs.setLastVersionForProfile(profile_id, actual_version)
         events.profileImportedEventHandler = profileImportedEventHandler

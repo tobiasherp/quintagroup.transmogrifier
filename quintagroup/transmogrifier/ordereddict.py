@@ -3,6 +3,7 @@
 
 from UserDict import DictMixin
 
+
 class OrderedDict(dict, DictMixin):
 
     def __init__(self, *args, **kwds):
@@ -64,8 +65,8 @@ class OrderedDict(dict, DictMixin):
         inst_dict = vars(self).copy()
         self.__map, self.__end = tmp
         if inst_dict:
-            return (self.__class__, (items,), inst_dict)
-        return self.__class__, (items,)
+            return (self.__class__, (items, ), inst_dict)
+        return self.__class__, (items, )
 
     def keys(self):
         return list(self)
@@ -81,7 +82,7 @@ class OrderedDict(dict, DictMixin):
 
     def __repr__(self):
         if not self:
-            return '%s()' % (self.__class__.__name__,)
+            return '%s()' % (self.__class__.__name__, )
         return '%s(%r)' % (self.__class__.__name__, self.items())
 
     def copy(self):
@@ -96,7 +97,7 @@ class OrderedDict(dict, DictMixin):
 
     def __eq__(self, other):
         if isinstance(other, OrderedDict):
-            return len(self)==len(other) and self.items() == other.items()
+            return len(self) == len(other) and self.items() == other.items()
         return dict.__eq__(self, other)
 
     def __ne__(self, other):

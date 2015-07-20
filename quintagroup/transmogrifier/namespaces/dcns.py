@@ -19,7 +19,7 @@ class DCAttribute(base.DCAttribute):
             return False
 
         for value in values:
-            elname = "%s:%s"%(self.namespace.prefix, self.name)
+            elname = "%s:%s" % (self.namespace.prefix, self.name)
             node = dom.createElementNS(base.DublinCore.xmlns, elname)
 
             # try to get 'utf-8' encoded string
@@ -59,7 +59,8 @@ class DCAttribute(base.DCAttribute):
         if self.many:
             data.setdefault(self.name, []).append(value)
         else:
-            data[self.name]=value
+            data[self.name] = value
+
 
 class DublinCore(base.DublinCore):
 
@@ -68,7 +69,7 @@ class DublinCore(base.DublinCore):
                     process=(normalizer.space, normalizer.newline)),
 
         DCAttribute('description', 'Description', 'setDescription',
-                    process=(normalizer.space,)),
+                    process=(normalizer.space, )),
 
         DCAttribute('subject', 'Subject', 'setSubject', many=True),
         DCAttribute('contributor', 'Contributors', 'setContributors',

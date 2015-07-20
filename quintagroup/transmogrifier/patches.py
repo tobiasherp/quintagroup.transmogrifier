@@ -7,10 +7,11 @@ from StringIO import StringIO
 # These patches are only required for versions of Plone that use older Pythons
 PYTHON_VERSION = sys.version_info[:2]
 
+
 # TarballExportContext don't write dirs in tarball and we need to fix this
 
 #security.declareProtected( ManagePortal, 'writeDataFile' )
-def writeDataFile( self, filename, text, content_type, subdir=None ):
+def writeDataFile(self, filename, text, content_type, subdir=None):
 
     """ See IExportContext.
     """
@@ -21,7 +22,7 @@ def writeDataFile( self, filename, text, content_type, subdir=None ):
         while parents:
             dirname = os.path.join(*parents)
             try:
-                self._archive.getmember(dirname+'/')
+                self._archive.getmember(dirname + '/')
             except KeyError:
                 info = TarInfo(dirname)
                 info.size = 0
@@ -90,6 +91,7 @@ if PYTHON_VERSION < (2, 6):
 if PYTHON_VERSION == (2, 4):
     from tarfile import nts, GNUTYPE_SPARSE
     from os.path import normpath
+
 
     def frombuf(cls, buf):
         """Construct a TarInfo object from a 512 byte string buffer.

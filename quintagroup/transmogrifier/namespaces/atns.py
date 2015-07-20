@@ -27,7 +27,7 @@ class ATAttribute(base.ATAttribute):
         for value in values:
             if instance.Type() == 'Folder':
                 # allowed types are acquired from parent
-                if instance.getConstrainTypesMode() != 1 and self.name in ['locallyAllowedTypes','immediatelyAddableTypes']:
+                if instance.getConstrainTypesMode() != 1 and self.name in ['locallyAllowedTypes', 'immediatelyAddableTypes']:
                     continue
             node = dom.createElementNS(self.namespace.xmlns, "field")
             name_attr = dom.createAttribute("name")
@@ -107,17 +107,17 @@ class ATAttribute(base.ATAttribute):
     def deserialize(self, instance, ns_data, options={}):
         if not ns_data:
             return
-        data = ns_data.get( self.name )
+        data = ns_data.get(self.name)
         if data is None:
             return
         values = data.get('value', None)
         if not values:
             return
 
-	# check if we are a schema attribute
-        if self.isReference( instance ):
-            values = self.resolveReferences( instance, values)
-            if not config.HANDLE_REFS :
+ # check if we are a schema attribute
+        if self.isReference(instance):
+            values = self.resolveReferences(instance, values)
+            if not config.HANDLE_REFS:
                 return
 
         field = instance.Schema()[self.name]
@@ -125,7 +125,7 @@ class ATAttribute(base.ATAttribute):
         if not mutator:
             # read only field no mutator, but try to set value still
             # since it might reflect object state (like ATCriteria)
-            field = instance.getField( self.name ).set( instance, values )
+            field = instance.getField(self.name).set(instance, values)
             #raise AttributeError("No Mutator for %s"%self.name)
             return
 

@@ -29,5 +29,4 @@ class TransmogrifierLayer(BasePTCLayer):
             startDate='2010/01/01 15:00:00 GMT+1',
             endDate='2010/01/01 15:00:00 GMT+1')
 
-
 transmogrifier = TransmogrifierLayer(bases=[ptc_layer])

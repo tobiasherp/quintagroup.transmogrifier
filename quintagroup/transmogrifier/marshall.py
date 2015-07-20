@@ -37,12 +37,14 @@ class MarshallerSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(str(path), None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 # get list of excluded fields given in options and in item
@@ -68,6 +70,7 @@ class MarshallerSection(object):
 
             yield item
 
+
 class DemarshallerSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -78,7 +81,6 @@ class DemarshallerSection(object):
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
-
         # Marshall doesn't support excluding fields on demarshalling,
         # we can do this with xml.dom.minodom, if it'll be needed in the future
         # self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
@@ -94,14 +96,17 @@ class DemarshallerSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
             if 'marshall' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(str(path), None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 try:
@@ -109,7 +114,8 @@ class DemarshallerSection(object):
                     try:
                         self.atxml.demarshall(obj, data)
                     except SyntaxError:
-                        yield item; continue
+                        yield item
+                        continue
 
                     # When we change workflow state of content through Plone interface,
                     # effective date field will be updated to current date (the same
@@ -137,9 +143,9 @@ class DemarshallerSection(object):
                     raise
                 except Exception:
                     print 'Exception in demarshaller section:'
-                    print '-'*60
+                    print '-' * 60
                     traceback.print_exc()
-                    print '-'*60
+                    print '-' * 60
 
             yield item
 

@@ -20,6 +20,8 @@ try:
 except NameError:
     # python < 2.6
     _marker = object()
+
+
     def next(iterator, default=_marker):
         try:
             return iterator.next()
@@ -28,7 +30,9 @@ except NameError:
                 raise
             return default
 
+
 class IteratorWithLookahead(object):
+
     # Adapted from http://stackoverflow.com/questions/1518097
     def __init__(self, it):
         self.it, self.nextit = itertools.tee(iter(it))
@@ -59,7 +63,8 @@ class ManifestExporterSection(object):
         for item in self.previous:
             entrieskey = self.entrieskey(*item.keys())[0]
             if not entrieskey:
-                yield item; continue
+                yield item
+                continue
 
             manifest = self.createManifest(item[entrieskey])
 

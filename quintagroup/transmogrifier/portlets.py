@@ -9,8 +9,7 @@ from zope.container.interfaces import INameChooser
 from zope.schema.interfaces import ConstraintNotSatisfied
 from zope.schema.interfaces import ICollection
 
-
-from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager,\
+from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager, \
     IPortletAssignmentMapping, IPortletAssignment, ILocalPortletAssignmentManager
 from plone.portlets.constants import USER_CATEGORY, GROUP_CATEGORY, \
     CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY
@@ -20,6 +19,7 @@ from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentEx
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
+
 
 class PortletsExporterSection(object):
     classProvides(ISectionBlueprint)
@@ -35,7 +35,7 @@ class PortletsExporterSection(object):
         self.doc = minidom.Document()
 
     def __iter__(self):
-        self.portlet_schemata = dict([(iface, name,) for name, iface in
+        self.portlet_schemata = dict([(iface, name, ) for name, iface in
             getUtilitiesFor(IPortletTypeInterface)])
         self.portlet_managers = list(getUtilitiesFor(IPortletManager))
 
@@ -43,12 +43,14 @@ class PortletsExporterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if ILocalPortletAssignable.providedBy(obj):
                 data = None
@@ -111,7 +113,7 @@ class PortletsExporterSection(object):
             assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
             if assignable is None:
                 continue
-            for category in (USER_CATEGORY, GROUP_CATEGORY, CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY,):
+            for category in (USER_CATEGORY, GROUP_CATEGORY, CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY, ):
                 child = self.doc.createElement('blacklist')
                 child.setAttribute('manager', manager_name)
                 child.setAttribute('category', category)
@@ -148,14 +150,17 @@ class PortletsImporterSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
             if 'portlets' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             # Purge assignments if 'purge' option set to true
             if self.purge:
@@ -233,8 +238,8 @@ class PortletsImporterSection(object):
         elif status.lower() == 'acquire':
             assignable.setBlacklistStatus(category, None)
 
-
 logger = logging.getLogger('quintagroup.transmogrifier.portletsimporter')
+
 
 class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImportHandler):
     """ This adapter is needed because original fails to handle text from

@@ -32,6 +32,7 @@ xsl_template = """\
 </xsl:stylesheet>
 """
 
+
 class StylesheetRegistry(object):
     def __init__(self):
         self.clear()
@@ -72,6 +73,7 @@ stylesheet_registry = StylesheetRegistry()
 from zope.testing.cleanup import addCleanUp
 addCleanUp(stylesheet_registry.clear)
 del addCleanUp
+
 
 class IStylesheetDirective(Interface):
     """ Register XSLT file with the global registry.
@@ -131,10 +133,12 @@ class XSLTSection(object):
             tokey = self.tokey(*item.keys())[0]
 
             if not (fileskey and fromkey and tokey):
-                yield item; continue
+                yield item
+                continue
 
             if not (source in item[fileskey] and item[fileskey][source]):
-                yield item; continue
+                yield item
+                continue
 
             from_ = item[fromkey]
             to = item[tokey]
@@ -149,7 +153,8 @@ class XSLTSection(object):
                     source_dict['data'] = self.applyTransformations(source_dict['data'], stylesheet)
                     if not stylesheet.closed:
                         stylesheet.close()
-                yield item; continue
+                yield item
+                continue
 
             fp = open(stylesheet_info['file'], 'r')
             stylesheet = fp.read()

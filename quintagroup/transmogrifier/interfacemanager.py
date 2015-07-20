@@ -8,6 +8,7 @@ from Products.CMFCore import utils
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 
+
 class InterfacesExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -34,12 +35,14 @@ class InterfacesExporterSection(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             ifaces = self.getInterfaces(obj)
 
@@ -120,26 +123,29 @@ class InterfacesImporterSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
-                yield item; continue
+                yield item
+                continue
             if 'interfaces' not in item[fileskey]:
-                yield item; continue
+                yield item
+                continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             ifaces = self.extractIfaces(obj, item[fileskey]['interfaces']['data'])
 
             if ifaces == []:         # no interfaces
-                yield item; continue
+                yield item
+                continue
 
             alsoProvides(obj, *ifaces)
 
             yield item
 
         self.catalog.reindexIndex('object_provides', None)
-
 
     def extractIfaces(self, obj, data):
         doc = minidom.parseString(data)
@@ -158,9 +164,9 @@ class InterfacesImporterSection(object):
                 ifaces.append(iface)
         return ifaces
 
-
     def getIfaceById(self, name):
-        components = name.split('.'); components.reverse()
+        components = name.split('.')
+        components.reverse()
         try:
             obj = __import__(components.pop())
         except (ImportError, ValueError):
@@ -168,4 +174,3 @@ class InterfacesImporterSection(object):
         while obj is not None and components:
             obj = getattr(obj, components.pop(), None)
         return obj
-

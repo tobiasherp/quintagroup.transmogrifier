@@ -20,8 +20,10 @@ from lxml import etree
 import quintagroup.transmogrifier
 from quintagroup.transmogrifier.xslt import stylesheet_registry
 
+
 def stdprint(s):
     print(s)  # this needs at least Python 2.6
+
 
 class DataPrinter(object):
     classProvides(ISectionBlueprint)
@@ -53,6 +55,8 @@ class DataPrinter(object):
             yield item
 
 ctSectionsSetup = sectionsSetUp
+
+
 def sectionsSetUp(test):
     ctSectionsSetup(test)
     import Products.Five
@@ -71,17 +75,20 @@ def sectionsSetUp(test):
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
 
     from Products.CMFCore import utils
+
     def getToolByName(context, tool_id, default=None):
         return context
     utils.getToolByName = getToolByName
 
     import Acquisition
+
     def aq_base(obj):
         return obj
     Acquisition.aq_base = aq_base
 
     provideUtility(DataPrinter,
         name=u'quintagroup.transmogrifier.tests.dataprinter')
+
 
 def siteWalkerSetUp(test):
     sectionsSetUp(test)
@@ -107,7 +114,6 @@ def siteWalkerSetUp(test):
         contentItems = dict.items
         contentValues = dict.values
 
-
     class MockURLTool(object):
 
         def getRelativeContentURL(self, obj):
@@ -120,7 +126,6 @@ def siteWalkerSetUp(test):
         contentValues = dict.values
 
         portal_url = MockURLTool()
-
 
     portal = MockPortal()
 
@@ -188,6 +193,7 @@ def manifestSetUp(test):
     provideUtility(ManifestSource,
         name=u'quintagroup.transmogrifier.tests.manifestsource')
 
+
 def marshallSetUp(test):
     sectionsSetUp(test)
 
@@ -232,8 +238,9 @@ def marshallSetUp(test):
             pass
 
         indexed = ()
+
         def indexObject(self):
-            self.indexed += (self._last_path,)
+            self.indexed += (self._last_path, )
 
         def getField(self, fname):
             return Field(fname)
@@ -242,8 +249,9 @@ def marshallSetUp(test):
         implements(IBaseObject)
         _last_path = None
         indexed = ()
+
         def indexObject(self):
-            self.indexed += (self._last_path,)
+            self.indexed += (self._last_path, )
 
     class MockPortal(MockBase):
         implements(IBaseObject)
@@ -251,9 +259,10 @@ def marshallSetUp(test):
         criterion = MockCriterion('not changed')
 
         _last_path = None
+
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -271,20 +280,24 @@ def marshallSetUp(test):
             return "plone"
 
         indexed = ()
+
         def indexObject(self):
-            self.indexed += (self._last_path,)
+            self.indexed += (self._last_path, )
 
         updatedRoles = False
+
         def updateRoleMappings(self):
             self.updatedRoles = True
 
         reindexed = False
+
         def reindexIndex(self, name, extra=None):
             self.reindexed = True
 
         marshalled = ()
+
         def marshall(self, instance, **kwargs):
-            self.marshalled += ((self._last_path, kwargs.get('atns_exclude')),)
+            self.marshalled += ((self._last_path, kwargs.get('atns_exclude')), )
             # Marshall often fails to export topic criteria
             if isinstance(instance, MockCriterion):
                 return None, None, None
@@ -292,15 +305,17 @@ def marshallSetUp(test):
                 return None, None, "marshalled"
 
         demarshalled = ()
+
         def demarshall(self, instance, data):
             # we don't need to test Marshall product, only check if we call it's components
-            self.demarshalled += (self._last_path,)
+            self.demarshalled += (self._last_path, )
 
     portal = MockPortal()
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
     from Products.Marshall import registry
+
     def getComponent(name):
         return portal
     registry.getComponent = getComponent
@@ -322,6 +337,7 @@ def marshallSetUp(test):
     provideUtility(MarshallSource,
         name=u'quintagroup.transmogrifier.tests.marshallsource')
 
+
 def propertyManagerSetUp(test):
     sectionsSetUp(test)
 
@@ -331,16 +347,17 @@ def propertyManagerSetUp(test):
         implements(IPropertyManager)
 
         _properties = (
-            {'id':'title', 'type': 'string', 'mode': 'w'},
-            {'id':'description', 'type': 'string', 'mode': 'w'},
-            {'id':'encoding', 'type': 'string', 'mode': 'w'},
-            {'id':'author', 'type': 'string', 'mode': 'w'}
+            {'id': 'title', 'type': 'string', 'mode': 'w'},
+            {'id': 'description', 'type': 'string', 'mode': 'w'},
+            {'id': 'encoding', 'type': 'string', 'mode': 'w'},
+            {'id': 'author', 'type': 'string', 'mode': 'w'}
         )
 
         _last_path = None
+
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -357,12 +374,13 @@ def propertyManagerSetUp(test):
             return 'value'
 
         def propdict(self):
-            d={}
+            d = {}
             for p in self._properties:
-                d[p['id']]=p
+                d[p['id']] = p
             return d
 
         updated = ()
+
         def _updateProperty(self, id, value):
             self.updated += ((self._last_path, id, value))
 
@@ -380,11 +398,12 @@ def propertyManagerSetUp(test):
                 dict(),
                 dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notatcontent'),
-                dict(_path='spam/eggs/foo', _excluded_properties=('encoding',)),
+                dict(_path='spam/eggs/foo', _excluded_properties=('encoding', )),
             )
 
     provideUtility(PropertyManagerSource,
         name=u'quintagroup.transmogrifier.tests.propertymanagersource')
+
 
 def commentsSetUp(test):
     sectionsSetUp(test)
@@ -457,7 +476,7 @@ def commentsSetUp(test):
 
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -496,7 +515,7 @@ def dataCorrectorSetUp(test):
     class MockPortal(object):
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -516,6 +535,7 @@ def dataCorrectorSetUp(test):
     class MockExportAdapter(object):
         implements(IExportDataCorrector)
         adapts(MockPortal, ITransmogrifier)
+
         def __init__(self, context, transmogrifier):
             self.context = context
             self.transmogrifier = transmogrifier
@@ -528,6 +548,7 @@ def dataCorrectorSetUp(test):
     class MockImportAdapter(object):
         implements(IImportDataCorrector)
         adapts(MockPortal, ITransmogrifier)
+
         def __init__(self, context, transmogrifier):
             self.context = context
             self.transmogrifier = transmogrifier
@@ -558,11 +579,12 @@ def dataCorrectorSetUp(test):
     provideUtility(DataCorrectorSource,
         name=u'quintagroup.transmogrifier.tests.datacorrectorsource')
 
+
 def writerSetUp(test):
     sectionsSetUp(test)
 
     class MockExportContext(object):
-        def __init__( self, *args, **kwargs):
+        def __init__(self, *args, **kwargs):
             self.args = args
             for k, v in kwargs.items():
                 setattr(self, k, v)
@@ -579,15 +601,14 @@ def writerSetUp(test):
             self._wrote.append((filename, text, content_type))
 
         def __repr__(self):
-            s = " ".join(["%s=%s" % (k,v) for k,v in self.__dict__.items()])
+            s = " ".join(["%s=%s" % (k, v) for k, v in self.__dict__.items()])
             return "<%s %s>" % (self.__class__.__name__, s)
-
 
     from Products.GenericSetup import context
 
-    context.DirectoryExportContext = type('Directory', (MockExportContext,), {})
-    context.TarballExportContext = type('Tarball', (MockExportContext,), {})
-    context.SnapshotExportContext = type('Snapshot', (MockExportContext,), {})
+    context.DirectoryExportContext = type('Directory', (MockExportContext, ), {})
+    context.TarballExportContext = type('Tarball', (MockExportContext, ), {})
+    context.SnapshotExportContext = type('Snapshot', (MockExportContext, ), {})
 
     class WriterSource(SampleSource):
         classProvides(ISectionBlueprint)
@@ -621,6 +642,7 @@ def writerSetUp(test):
     provideUtility(SingleItemSource,
         name=u"quintagroup.transmogrifier.tests.singleitemsource")
 
+
 def readerSetUp(test):
     sectionsSetUp(test)
 
@@ -640,13 +662,13 @@ def readerSetUp(test):
             'structure/pages/front-page/.comments.xml',
         ]
 
-        def __init__( self, *args, **kwargs):
+        def __init__(self, *args, **kwargs):
             self.args = args
             for k, v in kwargs.items():
                 setattr(self, k, v)
 
         def __repr__(self):
-            s = " ".join(["%s=%s" % (k,v) for k,v in self.__dict__.items()])
+            s = " ".join(["%s=%s" % (k, v) for k, v in self.__dict__.items()])
             return "<%s %s>" % (self.__class__.__name__, s)
 
         def readDataFile(self, filename, subdir=None):
@@ -658,7 +680,7 @@ def readerSetUp(test):
         def listDirectory(self, path):
             all_names = self._dirs + self._files
             if path:
-                pfx_len = len(path)+1
+                pfx_len = len(path) + 1
             else:
                 pfx_len = 0
             names = []
@@ -675,11 +697,12 @@ def readerSetUp(test):
 
     from Products.GenericSetup import context
 
-    context.DirectoryImportContext = type('Directory', (MockImportContext,),
+    context.DirectoryImportContext = type('Directory', (MockImportContext, ),
         {'listDirectory': lambda self, path: []})
-    context.TarballImportContext = type('Tarball', (MockImportContext,), {})
-    context.SnapshotImportContext = type('Snapshot', (MockImportContext,),
+    context.TarballImportContext = type('Tarball', (MockImportContext, ), {})
+    context.SnapshotImportContext = type('Snapshot', (MockImportContext, ),
         {'listDirectory': lambda self, path: []})
+
 
 def substitutionSetUp(test):
     sectionsSetUp(test)
@@ -699,6 +722,7 @@ def substitutionSetUp(test):
 
     provideUtility(SubstitutionSource,
         name=u'quintagroup.transmogrifier.tests.substitutionsource')
+
 
 class MetaDirectivesTests(unittest.TestCase):
     def setUp(self):
@@ -726,7 +750,7 @@ class MetaDirectivesTests(unittest.TestCase):
     />
 </configure>''')
         self.assertEqual(stylesheet_registry.listStylesheetNames(),
-                         (u'marshall:Blog:Weblog',))
+                         (u'marshall:Blog:Weblog', ))
         path = os.path.split(quintagroup.transmogrifier.__file__)[0]
         self.assertEqual(
             stylesheet_registry.getStylesheet('marshall', 'Blog', 'Weblog'),
@@ -755,6 +779,7 @@ class MetaDirectivesTests(unittest.TestCase):
         self.assertEqual(stylesheet_registry.listStylesheetNames(),
                          (u'marshall:Blog:Weblog', u'propertymanager:BlogEntry:WeblogEntry'))
 
+
 def xsltSetUp(test):
     sectionsSetUp(test)
 
@@ -779,7 +804,6 @@ def xsltSetUp(test):
                   '_files': {'marshall': {'data': 'xml', 'name': 'marshall.xml'}}},
             )
 
-
     provideUtility(XSLTSource,
         name=u'quintagroup.transmogrifier.tests.xsltsource')
 
@@ -787,6 +811,7 @@ def xsltSetUp(test):
 
     XSLTSection.applyTransformations = lambda self, xml, xslt: 'transformed xml'
     test.globs['stylesheet_registry'] = stylesheet_registry
+
 
 def binarySetUp(test):
     sectionsSetUp(test)
@@ -797,9 +822,10 @@ def binarySetUp(test):
         implements(IBaseObject)
 
         _last_path = None
+
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -818,6 +844,7 @@ def binarySetUp(test):
             return field in ('file', 'image')
 
         _current_field = None
+
         def getField(self, field):
             self._current_field = field
             return self
@@ -847,6 +874,7 @@ def binarySetUp(test):
             return self
 
         updated = ()
+
         def __call__(self, data, filename=None, mimetype=None):
             self.updated += (filename, mimetype, data)
 
@@ -871,6 +899,7 @@ def binarySetUp(test):
         name=u'quintagroup.transmogrifier.tests.binarysource')
 
 from DateTime import DateTime
+
 
 def catalogSourceSetUp(test):
     sectionsSetUp(test)
@@ -899,6 +928,7 @@ def catalogSourceSetUp(test):
     class MockPortal(dict):
 
         content = ()
+
         def __call__(self, **kw):
             res = []
             for obj in self.content:
@@ -958,6 +988,7 @@ def catalogSourceSetUp(test):
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
+
 def flushCacheSetUp(test):
     sectionsSetUp(test)
 
@@ -976,7 +1007,7 @@ def flushCacheSetUp(test):
             self.context = context
 
         def getDatabaseNames(self):
-            return ('main',)
+            return ('main', )
 
         def __getitem__(self, key):
             return DataBase(self.context)
@@ -1009,9 +1040,10 @@ def interfaceManagerSetUp(test):
         )
 
         _last_path = None
+
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -1025,9 +1057,9 @@ def interfaceManagerSetUp(test):
         def reindexIndex(self, *args, **kwargs):
             pass
 
-
     updated = []
     test.globs['updated'] = updated
+
     def patch_alsoProvides(object, *interfaces):
         updated.extend([i.__identifier__ for i in interfaces])
         orig_alsoProvides(object, *interfaces)
@@ -1054,6 +1086,7 @@ def interfaceManagerSetUp(test):
     provideUtility(InterfaceManagerSource,
         name=u'quintagroup.transmogrifier.tests.interfacemanagersource')
 
+
 def portletsSetUp(test):
     sectionsSetUp(test)
 
@@ -1068,9 +1101,10 @@ def portletsSetUp(test):
         implements(IAttributeAnnotatable, ILocalPortletAssignable)
 
         _last_path = None
+
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
-                return default # path is absolute
+                return default  # path is absolute
             if isinstance(path, unicode):
                 return default
             if path == 'not/existing/bar':
@@ -1186,7 +1220,7 @@ def portletsSetUp(test):
     from plone.portlets.interfaces import  ILocalPortletAssignmentManager
     from plone.portlets.constants import USER_CATEGORY
     # from plone.app.portlets.browser.interfaces import IPortletAdding
-    from plone.app.portlets.portlets.rss import IRSSPortlet, Assignment #, Renderer, AddForm, EditForm
+    from plone.app.portlets.portlets.rss import IRSSPortlet, Assignment  # , Renderer, AddForm, EditForm
 
     # register portlet manager and assignment mapping adapter
     manager = PortletManager()
@@ -1231,6 +1265,7 @@ def portletsSetUp(test):
         field.set(assignment, v)
     # set blacklists for user category to 'block'
     assignable.setBlacklistStatus(USER_CATEGORY, True)
+
 
 def test_suite():
     import sys
