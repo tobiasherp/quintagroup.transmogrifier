@@ -69,7 +69,7 @@ class DublinCore(base.DublinCore):
                     process=(normalizer.space, normalizer.newline)),
 
         DCAttribute('description', 'Description', 'setDescription',
-                    process=(normalizer.space, )),
+                    process=(normalizer.space,)),
 
         DCAttribute('subject', 'Subject', 'setSubject', many=True),
         DCAttribute('contributor', 'Contributors', 'setContributors',

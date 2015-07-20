@@ -240,7 +240,7 @@ def marshallSetUp(test):
         indexed = ()
 
         def indexObject(self):
-            self.indexed += (self._last_path, )
+            self.indexed += (self._last_path,)
 
         def getField(self, fname):
             return Field(fname)
@@ -251,7 +251,7 @@ def marshallSetUp(test):
         indexed = ()
 
         def indexObject(self):
-            self.indexed += (self._last_path, )
+            self.indexed += (self._last_path,)
 
     class MockPortal(MockBase):
         implements(IBaseObject)
@@ -282,7 +282,7 @@ def marshallSetUp(test):
         indexed = ()
 
         def indexObject(self):
-            self.indexed += (self._last_path, )
+            self.indexed += (self._last_path,)
 
         updatedRoles = False
 
@@ -297,7 +297,7 @@ def marshallSetUp(test):
         marshalled = ()
 
         def marshall(self, instance, **kwargs):
-            self.marshalled += ((self._last_path, kwargs.get('atns_exclude')), )
+            self.marshalled += ((self._last_path, kwargs.get('atns_exclude')),)
             # Marshall often fails to export topic criteria
             if isinstance(instance, MockCriterion):
                 return None, None, None
@@ -308,7 +308,7 @@ def marshallSetUp(test):
 
         def demarshall(self, instance, data):
             # we don't need to test Marshall product, only check if we call it's components
-            self.demarshalled += (self._last_path, )
+            self.demarshalled += (self._last_path,)
 
     portal = MockPortal()
     test.globs['plone'] = portal
@@ -398,7 +398,7 @@ def propertyManagerSetUp(test):
                 dict(),
                 dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notatcontent'),
-                dict(_path='spam/eggs/foo', _excluded_properties=('encoding', )),
+                dict(_path='spam/eggs/foo', _excluded_properties=('encoding',)),
             )
 
     provideUtility(PropertyManagerSource,
@@ -606,9 +606,9 @@ def writerSetUp(test):
 
     from Products.GenericSetup import context
 
-    context.DirectoryExportContext = type('Directory', (MockExportContext, ), {})
-    context.TarballExportContext = type('Tarball', (MockExportContext, ), {})
-    context.SnapshotExportContext = type('Snapshot', (MockExportContext, ), {})
+    context.DirectoryExportContext = type('Directory', (MockExportContext,), {})
+    context.TarballExportContext = type('Tarball', (MockExportContext,), {})
+    context.SnapshotExportContext = type('Snapshot', (MockExportContext,), {})
 
     class WriterSource(SampleSource):
         classProvides(ISectionBlueprint)
@@ -697,10 +697,10 @@ def readerSetUp(test):
 
     from Products.GenericSetup import context
 
-    context.DirectoryImportContext = type('Directory', (MockImportContext, ),
+    context.DirectoryImportContext = type('Directory', (MockImportContext,),
         {'listDirectory': lambda self, path: []})
-    context.TarballImportContext = type('Tarball', (MockImportContext, ), {})
-    context.SnapshotImportContext = type('Snapshot', (MockImportContext, ),
+    context.TarballImportContext = type('Tarball', (MockImportContext,), {})
+    context.SnapshotImportContext = type('Snapshot', (MockImportContext,),
         {'listDirectory': lambda self, path: []})
 
 
@@ -750,7 +750,7 @@ class MetaDirectivesTests(unittest.TestCase):
     />
 </configure>''')
         self.assertEqual(stylesheet_registry.listStylesheetNames(),
-                         (u'marshall:Blog:Weblog', ))
+                         (u'marshall:Blog:Weblog',))
         path = os.path.split(quintagroup.transmogrifier.__file__)[0]
         self.assertEqual(
             stylesheet_registry.getStylesheet('marshall', 'Blog', 'Weblog'),
@@ -1007,7 +1007,7 @@ def flushCacheSetUp(test):
             self.context = context
 
         def getDatabaseNames(self):
-            return ('main', )
+            return ('main',)
 
         def __getitem__(self, key):
             return DataBase(self.context)
