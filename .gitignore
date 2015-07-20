@@ -36,3 +36,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Editor backup files (e.g. Vim)
+*~
+
+# VirtualEnv (Windows)
+Include
+Scripts
