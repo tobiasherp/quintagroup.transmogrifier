@@ -16,16 +16,16 @@ logger = logging.getLogger("CatalogSourceSection")
 
 class CatalogSourceSection(object):
     """
-    
+
     Parameters:
-    
+
         * *exclude-contained*: do not export child objects if they do not match the catalog query source.
-          This is useful with path based queries where you do not wish to export items of each parent 
-          folder. 
-    
+          This is useful with path based queries where you do not wish to export items of each parent
+          folder.
+
     For other parameteres, please consult the original authors
     anad pledge them to comment what they have intended to do with this code.
-    
+
     """
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -46,7 +46,7 @@ class CatalogSourceSection(object):
             self.exclude_contained = options.pop('exclude-contained')
             self.exclude_contained = self.exclude_contained == "true"
         else:
-            self.exclude_contained = False 
+            self.exclude_contained = False
 
         # remove 'blueprint' option - it cannot be a query
         options.pop('blueprint')
@@ -74,10 +74,10 @@ class CatalogSourceSection(object):
 
         exported = []
         exported_parents = []
-        
+
         results = list(self.catalog(**self.query))
         results.sort(key=lambda x: x.getPath())
-        
+
         for brain in results:
             # discussion items are indexed and they must be replaced to
             # content objects to which they correspond
@@ -100,15 +100,15 @@ class CatalogSourceSection(object):
             containers = []
             container_path = path.rsplit('/', 1)[0]
             while container_path:
-                
+
                 if container_path in exported:
                     container_path = container_path.rsplit('/', 1)[0]
                     continue
-                
+
                 exported_parents.append(container_path)
-                                
+
                 contained = self.getContained(container_path, results, exported_parents)
-              
+
                 if contained:
                     exported.append(container_path)
                     containers.append({
@@ -116,7 +116,7 @@ class CatalogSourceSection(object):
                         self.entrieskey: contained,
                     })
                 container_path = container_path.rsplit('/', 1)[0]
-            
+
             containers.reverse()
             # order metter for us
             for i in containers:
@@ -149,22 +149,22 @@ class CatalogSourceSection(object):
     def getContained(self, path, original_results, parents):
         """ Return list of (object_id, portal_type) for objects that are returned by catalog
             and contained in folder with given 'path'.
-        
+
         @param original_results: Orignal portal_catalog result set - filter out child objects if they are not in this set.
-                                Set to None if you do not wish to filter the results. 
-        
+                                Set to None if you do not wish to filter the results.
+
         """
         results = []
         seen = []
-        
-       
-        # Remove the original path element from the query if there was one 
+
+
+        # Remove the original path element from the query if there was one
         query = copy.deepcopy(self.query)
         if "path" in query:
             del query["path"]
-        
+
         raw_results = self.catalog(path=path, **query)
-        
+
         for brain in raw_results:
             current = brain.getPath()
             relative = current[len(path):]
@@ -175,7 +175,7 @@ class CatalogSourceSection(object):
             elif '/' in relative:
                 # object stored in subfolders, we need append to results their parent folder
                 parent_path = '/'.join([path, relative.split('/', 1)[0]])
-                if parent_path not in seen:                    
+                if parent_path not in seen:
                     res = self.catalog(path=path) #, meta_type='Folder')
                     for i in res:
                         if i.getPath() == parent_path:
@@ -195,14 +195,14 @@ class CatalogSourceSection(object):
         # which do not actually appear in the exported content items.
 
         def filter(r):
-            
+
             # Parent objects must be allowed always
             for parent in parents:
                 #print parent
                 #print r.getPath()
                 if r.getPath() == parent:
                     return True
-            
+
             if r["UID"] in allowed_uids:
                 return True
             else:
@@ -213,13 +213,13 @@ class CatalogSourceSection(object):
             # we do not export results from parent objects which did not match
             # Build list of allowed object UIDs -
             allowed_uids = [ r["UID"] for r in original_results ]
-            
-            # All parents must be allowed always            
+
+            # All parents must be allowed always
             filtered_results = [ r for r in results if filter(r) == True  ]
         else:
             # Don't filter child items
             filtered_results = results
-        
+
         contained = [(i.getId, str(i.portal_type)) for i in filtered_results ]
 
         # list Collection criteria
@@ -229,5 +229,5 @@ class CatalogSourceSection(object):
                 contained = [(str(i.id), str(i.portal_type)) for i in obj.objectValues()]
         except:
             logging.info("ERROR Traversing obj: %s"%path)
-                     
+
         return tuple(contained)

@@ -152,7 +152,7 @@ class InterfacesImporterSection(object):
                 continue
             elif self.exclude and iface_name in self.exclude:
                 continue
-                
+
             iface = self.getIfaceById(iface_name)
             if iface:
                 ifaces.append(iface)

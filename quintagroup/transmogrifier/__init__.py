@@ -5,7 +5,7 @@ def patch():
     # Apply patch to Plone, if we are on a version before
     # the fix of XXX was applied
     from Products.CMFPlone import events
-   
+
     class DummyEvent(object):
         profile_id = None
         tool = None

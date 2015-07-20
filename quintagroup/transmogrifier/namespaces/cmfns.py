@@ -68,7 +68,7 @@ class WorkflowAttribute(base.WorkflowAttribute):
                   'comments': safe_utf8(action['comments']),
                   'time': action['time']} for action in actions])
         return fixed_history
-            
+
 
 class CMF(base.CMF):
 

@@ -35,7 +35,7 @@ class PortletsExporterSection(object):
         self.doc = minidom.Document()
 
     def __iter__(self):
-        self.portlet_schemata = dict([(iface, name,) for name, iface in 
+        self.portlet_schemata = dict([(iface, name,) for name, iface in
             getUtilitiesFor(IPortletTypeInterface)])
         self.portlet_managers = list(getUtilitiesFor(IPortletManager))
 
@@ -115,7 +115,7 @@ class PortletsExporterSection(object):
                 child = self.doc.createElement('blacklist')
                 child.setAttribute('manager', manager_name)
                 child.setAttribute('category', category)
-            
+
                 status = assignable.getBlacklistStatus(category)
                 if status == True:
                     child.setAttribute('status', u'block')
@@ -123,7 +123,7 @@ class PortletsExporterSection(object):
                     child.setAttribute('status', u'show')
                 else:
                     child.setAttribute('status', u'acquire')
-                    
+
                 assignments.append(child)
 
         return assignments
@@ -221,11 +221,11 @@ class PortletsImporterSection(object):
         manager = node.getAttribute('manager')
         category = node.getAttribute('category')
         status = node.getAttribute('status')
-        
+
         manager = getUtility(IPortletManager, name=manager)
-        
+
         assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
-        
+
         if status.lower() == 'block':
             assignable.setBlacklistStatus(category, True)
         elif status.lower() == 'show':
@@ -237,7 +237,7 @@ class PortletsImporterSection(object):
 logger = logging.getLogger('quintagroup.transmogrifier.portletsimporter')
 
 class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImportHandler):
-    """ This adapter is needed because original fails to handle text from 
+    """ This adapter is needed because original fails to handle text from
         pretty printed XML file.
     """
     adapts(IPortletAssignment)

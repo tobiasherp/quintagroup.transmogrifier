@@ -43,7 +43,7 @@ class LoggerSection(object):
                 msg = ", ".join(items)
                 logging.getLogger(self.logger).info(msg)
             yield item
-        
+
         working_time = int(round(time() - start_time))
 
         # log items that maybe have some problems

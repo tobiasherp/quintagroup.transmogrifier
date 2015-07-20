@@ -34,7 +34,7 @@ class DataPrinter(object):
             self.pprint = pprint.PrettyPrinter().pprint
         else:
             self.pprint = stdprint
-        self.prettyfyxml = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)    
+        self.prettyfyxml = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
 
     def __iter__(self):
         for item in self.previous:
@@ -316,7 +316,7 @@ def marshallSetUp(test):
                 dict(_path='spam/eggs/foo', _excluded_fields=('file', 'image')),
                 dict(_path='topic/criterion'),
                 dict(_path='not/existing/bar'),
-                dict(_path='spam/eggs/notatcontent', 
+                dict(_path='spam/eggs/notatcontent',
                      _files=dict(marshall=dict(data='xml', name='.marshall.xml'))),
             )
     provideUtility(MarshallSource,
@@ -778,7 +778,7 @@ def xsltSetUp(test):
                   '_type': 'Folder',
                   '_files': {'marshall': {'data': 'xml', 'name': 'marshall.xml'}}},
             )
-            
+
 
     provideUtility(XSLTSource,
         name=u'quintagroup.transmogrifier.tests.xsltsource')
@@ -960,36 +960,36 @@ def catalogSourceSetUp(test):
 
 def flushCacheSetUp(test):
     sectionsSetUp(test)
-    
+
     class DataBase(object):
         def __init__(self, context):
             self.context = context
-        
+
         def cacheMinimize(self):
             self.context.cacheMinimized += 1
 
         def _getDB(self):
             return self
-    
+
     class DataBasePanel(object):
         def __init__(self, context):
             self.context = context
-        
+
         def getDatabaseNames(self):
             return ('main',)
-        
+
         def __getitem__(self, key):
             return DataBase(self.context)
-    
+
     class ControlPanel(object):
         def __init__(self, context):
             self.Database = DataBasePanel(context)
-    
+
     class MockPortal(object):
         def __init__(self):
             self.cacheMinimized = 0
             self.Control_Panel = ControlPanel(self)
-        
+
     test.globs['plone'] = MockPortal()
     test.globs['transmogrifier'].context = test.globs['plone']
 
@@ -1098,7 +1098,7 @@ def portletsSetUp(test):
                 dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notassignable'),
                 dict(_path='assignable'),
-                dict(_path='other-assignable', 
+                dict(_path='other-assignable',
                     files=dict(portlets=dict(
                         name='.portlets.xml',
                         data="""<?xml version="1.0" encoding="utf-8"?>
@@ -1211,7 +1211,7 @@ def portletsSetUp(test):
     portlet.description = 'A portlet which can receive and render an RSS feed.'
     portlet.addview = PORTLET_NAME
     portlet.for_ = [Interface]
-    provideUtility(component=portlet, provides=IPortletType, 
+    provideUtility(component=portlet, provides=IPortletType,
         name=PORTLET_NAME)
 
     # add a portlet and configure it (this is done on @@manage-portlets view)

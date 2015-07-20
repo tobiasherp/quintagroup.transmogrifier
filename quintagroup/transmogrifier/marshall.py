@@ -27,7 +27,7 @@ class MarshallerSection(object):
         self.fileskey = options.get('files-key', '_files').strip()
 
         self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
-        self.exclude = filter(None, [i.strip() for i in 
+        self.exclude = filter(None, [i.strip() for i in
                               options.get('exclude', '').splitlines()])
 
         self.atxml = registry.getComponent("atxml")
@@ -83,7 +83,7 @@ class DemarshallerSection(object):
         # we can do this with xml.dom.minodom, if it'll be needed in the future
         # self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
 
-        # self.exclude = filter(None, [i.strip() for i in 
+        # self.exclude = filter(None, [i.strip() for i in
         #                     options.get('exclude', '').splitlines()])
 
         self.atxml = registry.getComponent("atxml")

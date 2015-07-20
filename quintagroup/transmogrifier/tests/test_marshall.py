@@ -41,10 +41,10 @@ class CmfNsTestCase(TransmogrifierTestCase):
             {'action': 'hide', 'review_state': 'private',
              'actor': 'fred.flintstone', 'comments': '',
              'time': DateTime('2012/05/11 11:51:49.015124 GMT+2')})})
-           
+
     def test_local_roles(self):
         local_roles = {u'fred.flintstone': ['Owner']}
-        #self.setRoles(['Manager']) 
+        #self.setRoles(['Manager'])
         self.folder.invokeFactory('Document', 'doc1')
         doc1 = self.folder['doc1']
         setattr(doc1, '__ac_local_roles__', local_roles)

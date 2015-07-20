@@ -151,7 +151,7 @@ class PropertiesExporterSection(object):
         self.fileskey = options.get('files-key', '_files').strip()
 
         self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_properties')
-        self.exclude = filter(None, [i.strip() for i in 
+        self.exclude = filter(None, [i.strip() for i in
                               options.get('exclude', '').splitlines()])
 
         self.helper = Helper()
@@ -210,7 +210,7 @@ class PropertiesImporterSection(object):
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
 
         self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_properties')
-        self.exclude = filter(None, [i.strip() for i in 
+        self.exclude = filter(None, [i.strip() for i in
                             options.get('exclude', '').splitlines()])
 
         self.helper = Helper()

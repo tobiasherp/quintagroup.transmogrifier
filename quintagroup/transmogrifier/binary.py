@@ -55,7 +55,7 @@ class FileExporterSection(object):
                 for field in schema.keys():
                     try:
                         is_binary = obj.isBinary(field)
-                    except AttributeError: 
+                    except AttributeError:
                         # Products.MimetypesRegistry (2.0.6) raises this on certain
                         # BlobWrapper objects
                         continue

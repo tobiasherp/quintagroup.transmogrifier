@@ -16,11 +16,11 @@ from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import defaultMatcher
 
 xsl_template = """\
-<xsl:stylesheet version="1.0" 
+<xsl:stylesheet version="1.0"
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
      xmlns:at="http://plone.org/ns/archetypes/"
      xmlns:cmf="http://cmf.zope.org/namespaces/default/"
-     xmlns:dc="http://purl.org/dc/elements/1.1/">    
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
  <xsl:template match="@*|node()">
      <xsl:copy>
        <xsl:apply-templates select="@*|node()"/>
@@ -43,7 +43,7 @@ class StylesheetRegistry(object):
         name = "%s:%s" % (from_, to)
         if source in self._stylesheet_info:
             if name in self._stylesheet_info[source]:
-                raise KeyError('Duplicate stylesheet registration: %s %s %s' % 
+                raise KeyError('Duplicate stylesheet registration: %s %s %s' %
                     (source, from_, to))
         source = self._stylesheet_info.setdefault(source, {})
         source[name] = {
@@ -140,9 +140,9 @@ class XSLTSection(object):
             to = item[tokey]
             stylesheet_info = stylesheet_registry.getStylesheet(source, from_, to)
 
-            # no .xsl transformation was registered to convert item fromkey -> tokey 
+            # no .xsl transformation was registered to convert item fromkey -> tokey
             if stylesheet_info is None:
-                # fallback for simple case of type substitution  
+                # fallback for simple case of type substitution
                 if tokey == '_type':
                     stylesheet = StringIO(xsl_template % item[tokey])
                     source_dict = item[fileskey][source]
