@@ -71,8 +71,12 @@ class ReaderSection(object):
         names = self.import_context.listDirectory(top)
         if names is None:
             names = []
-        paths = (os.path.join(top, name) for name in names)
-        dirs = [path for path in paths if self.import_context.isDirectory(path)]
+        paths = (os.path.join(top, name)
+                 for name in names)
+        isdir = self.import_context.isDirectory
+        dirs = [path
+                for path in paths
+                if isdir(path)]
         for path in dirs:
             for i in self.walk(path):
                 yield i
