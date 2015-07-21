@@ -46,7 +46,7 @@ class ReferenceExporter(object):
             attr.value = fname
             elem.setAttributeNode(attr)
             if type(values) not in (tuple, list):
-                values = [values, ]
+                values = [values]
             for value in values:
                 ref = doc.createElement('reference')
                 uid = doc.createElement('uid')
