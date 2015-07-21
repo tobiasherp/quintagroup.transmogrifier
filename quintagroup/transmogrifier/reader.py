@@ -74,10 +74,10 @@ class ReaderSection(object):
         paths = (os.path.join(top, name) for name in names)
         dirs = [path for path in paths if self.import_context.isDirectory(path)]
         for path in dirs:
-            yield self.readFiles(path)
-        for path in dirs:
             for i in self.walk(path):
                 yield i
+        for path in dirs:
+            yield self.readFiles(path)
 
     def readFiles(self, top, names=None):
         if names is None:
