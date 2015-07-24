@@ -17,10 +17,15 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         NodeAdapterBase class.
     """
 
-    _encoding = 'utf-8'
+    _encoding = 'utf-8'  # overridden by __init__; preserved for subclassing
 
-    def __init__(self):
-        pass
+    def __init__(self, encoding='utf-8', safe_decode=None):
+        """
+        safe_decode -- a function which will decode all given non-unicode strings
+                       to unicode without raising exceptions
+        """
+        self._encoding = encoding or 'utf-8'
+        self._safe_decode = safe_decode or None
 
     def _getNodeText(self, node):
         # We override method in NodeAdapterBase, because it return bad property value.
@@ -36,6 +41,7 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
 
     def _extractProperties(self):
         fragment = etree.Element("root")
+        safe_decode = self._safe_decode
 
         for prop_map in self.context._propertyMap():
             prop_id = prop_map['id']
@@ -60,10 +66,12 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
             else:
                 if prop_map.get('type') == 'boolean':
                     prop = unicode(bool(prop))
-                elif isinstance(prop, str):
-                    prop = prop.decode(self._encoding)
                 elif not isinstance(prop, basestring):
                     prop = unicode(prop)
+                elif safe_decode is not None:
+                    prop = safe_decode(prop)
+                elif isinstance(prop, str):
+                    prop = prop.decode(self._encoding)
                 node.text = prop
 
             if 'd' in prop_map.get('mode', 'wd') and not prop_id == 'title':
@@ -156,7 +164,8 @@ class PropertiesExporterSection(object):
         self.exclude = filter(None, [i.strip() for i in
                               options.get('exclude', '').splitlines()])
 
-        self.helper = Helper()
+        helper_kwargs = options.get('helper_kwargs', {})
+        self.helper = Helper(**helper_kwargs)
         self.doc = etree.Element('properties')
         self.helper._doc = self.doc
 
@@ -218,8 +227,8 @@ class PropertiesImporterSection(object):
         self.exclude = filter(None, [i.strip() for i in
                             options.get('exclude', '').splitlines()])
 
-        self.helper = Helper()
-        self.helper._encoding = 'utf-8'
+        helper_kwargs = options.get('helper_kwargs', {})
+        self.helper = Helper(**helper_kwargs)
 
     def __iter__(self):
         helper = self.helper
