@@ -12,6 +12,9 @@ from Products.CMFCore import utils
 # import monkey patches for GS TarballContext
 import quintagroup.transmogrifier.patches
 
+# we might need to store information for later access
+from quintagroup.transmogrifier.utils import add_info
+
 
 class WriterSection(object):
     classProvides(ISectionBlueprint)
@@ -43,6 +46,12 @@ class WriterSection(object):
             self.export_context = context.SnapshotExportContext(setup_tool, snapshot_id)
         else:
             self.export_context = context.TarballExportContext(setup_tool)
+        add_info(transmogrifier,
+                 'export_context',
+                 name,
+                 {'context_type': context_type or 'tarball',
+                  'context':      self.export_context,
+                  })
 
     def __iter__(self):
         for item in self.previous:
