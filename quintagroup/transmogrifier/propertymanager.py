@@ -57,25 +57,36 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
 
             prop = self.context.getProperty(prop_id)
             if isinstance(prop, (tuple, list)):
-                for value in prop:
-                    if isinstance(value, str):
-                        if safe_decode is None:
-                            value = value.decode(self._encoding)
-                        else:
-                            value = safe_decode(value)
-                    child = etree.SubElement(node, 'element')
-                    child.text = value
-                    node.append(child)
+                try:
+                    for value in prop:
+                        if isinstance(value, str):
+                            if safe_decode is None:
+                                value = value.decode(self._encoding)
+                            else:
+                                value = safe_decode(value)
+                        child = etree.SubElement(node, 'element')
+                        child.text = value
+                        node.append(child)
+                except ValueError as e:
+                    print e
+                    print 'value: %(value)r (1)' % locals()
+                    raise
             else:
-                if prop_map.get('type') == 'boolean':
-                    prop = unicode(bool(prop))
-                elif not isinstance(prop, basestring):
-                    prop = unicode(prop)
-                elif safe_decode is not None:
-                    prop = safe_decode(prop)
-                elif isinstance(prop, str):
-                    prop = prop.decode(self._encoding)
-                node.text = prop
+                try:
+                    if prop_map.get('type') == 'boolean':
+                        prop = unicode(bool(prop))
+                    elif not isinstance(prop, basestring):
+                        prop = unicode(prop)
+                    elif safe_decode is not None:
+                        prop = safe_decode(prop)
+                    elif isinstance(prop, str):
+                        prop = prop.decode(self._encoding)
+                    print 'prop: %(prop)r (2)' % locals()
+                    node.text = prop
+                except ValueError as e:
+                    print e
+                    print 'prop: %(prop)r (2)' % locals()
+                    raise
 
             if 'd' in prop_map.get('mode', 'wd') and not prop_id == 'title':
                 prop_type = prop_map.get('type', 'string')
