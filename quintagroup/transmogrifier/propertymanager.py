@@ -59,7 +59,10 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
             if isinstance(prop, (tuple, list)):
                 for value in prop:
                     if isinstance(value, str):
-                        value = value.decode(self._encoding)
+                        if safe_decode is None:
+                            value = value.decode(self._encoding)
+                        else:
+                            value = safe_decode(value)
                     child = etree.SubElement(node, 'element')
                     child.text = value
                     node.append(child)
