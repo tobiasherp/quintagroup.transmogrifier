@@ -41,6 +41,8 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
 
     def _extractProperties(self):
         fragment = etree.Element("root")
+        # if safe_decode is given, use it for *all* strings, including unicode;
+        # it might serve additional purposes, e.g. removal of vertical tabs etc.
         safe_decode = self._safe_decode
 
         for prop_map in self.context._propertyMap():
@@ -59,11 +61,11 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
             if isinstance(prop, (tuple, list)):
                 try:
                     for value in prop:
-                        if isinstance(value, str):
-                            if safe_decode is None:
-                                value = value.decode(self._encoding)
-                            else:
+                        if isinstance(value, basestring):
+                            if safe_decode is not None:
                                 value = safe_decode(value)
+                            elif isinstance(value, str):
+                                value = value.decode(self._encoding)
                         child = etree.SubElement(node, 'element')
                         child.text = value
                         node.append(child)
@@ -81,7 +83,6 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
                         prop = safe_decode(prop)
                     elif isinstance(prop, str):
                         prop = prop.decode(self._encoding)
-                    print 'prop: %(prop)r (2)' % locals()
                     node.text = prop
                 except ValueError as e:
                     print e
