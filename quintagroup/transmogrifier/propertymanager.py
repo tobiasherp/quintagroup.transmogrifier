@@ -12,6 +12,11 @@ from OFS.interfaces import IPropertyManager
 from Products.GenericSetup.utils import PropertyManagerHelpers, NodeAdapterBase
 
 
+DEBUG_COUNTDOWN = 2
+if DEBUG_COUNTDOWN:
+    import pdb
+
+
 class Helper(PropertyManagerHelpers, NodeAdapterBase):
     """ We need this class because PropertyManagerHelpers in _initProperties
         method uses _convertToBoolean and _getNodeText methods from
@@ -33,6 +38,7 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         Unless a whitelist is given, 'i18n_domain' properties are skipped.
         """
         self._skip_this = make_skipfunc(whitelist, blacklist,
+                                        verbose=True,
                                         default_blacklist=['i18n_domain'])
         self._encoding = encoding or 'utf-8'
         self._safe_decode = safe_decode or None
@@ -55,6 +61,12 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         # it might serve additional purposes, e.g. removal of vertical tabs etc.
         safe_decode = self._safe_decode
         skip = self._skip_this
+
+        global DEBUG_COUNTDOWN
+        if DEBUG_COUNTDOWN:
+            DEBUG_COUNTDOWN = max(DEBUG_COUNTDOWN-1, 0)
+            print 'DEBUG_COUNTDOWN -->', DEBUG_COUNTDOWN
+            pdb.set_trace()
 
         for prop_map in self.context._propertyMap():
             prop_id = prop_map['id']
@@ -180,6 +192,7 @@ class PropertiesExporterSection(object):
     implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
+        print name.join((' [', '].init'))
         self.previous = previous
         self.context = transmogrifier.context
 
