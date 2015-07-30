@@ -134,7 +134,8 @@ safe_decode = make_safe_decoder()
 
 
 def make_skipfunc(whitelist=None, blacklist=None,
-                  default_blacklist=['i18n_domain']):
+                  default_blacklist=None,
+                  verbose=False):
     r"""
     Return a function which checks a given string (e.g. a property name)
     against a whitelist *or* a blacklist.
@@ -157,14 +158,35 @@ def make_skipfunc(whitelist=None, blacklist=None,
     False
 
     The entries of <default_blacklist> are used if no whitelist is given:
-    >>> default_skipfunc = make_skipfunc()
-    >>> default_skipfunc('i18n_domain')
+
+    >>> kwargs = dict(default_blacklist='oddkey')
+    >>> default_skipfunc = make_skipfunc(**kwargs)
+    >>> default_skipfunc('oddkey')
+    True
+
+    The whitelist and blacklist arguments are intended for configurable values,
+    e.g. in a section; the default_blacklist argument is usually hardcoded
+    and will have effect *unless a whitelist was given*:
+
+    >>> kwargs['whitelist'] = kwargs['default_blacklist']
+    >>> skip_oddkey = make_skipfunc(**kwargs)
+    >>> skip_oddkey('oddkey')
+    False
+    >>> skip_oddkey('anyother')
     True
 
     If even the default_blacklist is empty, nothing is skipped:
 
-    >>> skip_none = make_skipfunc(default_blacklist=None)
-    >>> skip_none('strangeprop')
+    >>> skip_none = make_skipfunc()
+    >>> skip_none('oddkey')
+    False
+
+    For development, you can specify verbose=True; this will give you
+    a line of output to stdout for every call to your skip function:
+
+    >>> skip_none = make_skipfunc(verbose=True)
+    >>> skip_none('oddkey')
+    skip 'oddkey'? Don't skip anything --> False
     False
 
     """
@@ -197,12 +219,38 @@ def make_skipfunc(whitelist=None, blacklist=None,
     def return_false(s):
         return False
 
-    if has_whitelist:
-        return check_whitelist
-    elif has_blacklist:
-        return check_blacklist
+    def check_whitelist_verbose(s):
+        res = s not in whitelist
+        print 'skip %r? whitelist %s --> %r' \
+                % (s, whitelist, res)
+        return res
+
+    def check_blacklist_verbose(s):
+        res = s in blacklist
+        print 'skip %r? blacklist %s --> %r' \
+                % (s, blacklist, res)
+        return res
+
+    def return_false_verbose(s):
+        res = False
+        print 'skip %r? Don\'t skip anything --> %r' \
+                % (s, res)
+        return res
+
+    if verbose:
+        if has_whitelist:
+            return check_whitelist_verbose
+        elif has_blacklist:
+            return check_blacklist_verbose
+        else:
+            return return_false_verbose
     else:
-        return return_false
+        if has_whitelist:
+            return check_whitelist
+        elif has_blacklist:
+            return check_blacklist
+        else:
+            return return_false
 
 
 if __name__ == '__main__':
