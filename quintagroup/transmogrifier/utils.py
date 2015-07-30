@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*- äöü (for doctest)
 """
 quintagroup.transmogrifier.utils
+
+The functions of this module should depend on standard modules only
+(for doctests)
 """
 
 
@@ -128,3 +131,80 @@ def make_safe_decoder(preferred='utf-8', preflist=None, errors='replace',
 
 # default version, accepting utf-8 and latin-1:
 safe_decode = make_safe_decoder()
+
+
+def make_skipfunc(whitelist=None, blacklist=None,
+                  default_blacklist=['i18n_domain']):
+    r"""
+    Return a function which checks a given string (e.g. a property name)
+    against a whitelist *or* a blacklist.
+    Only one of them may be given!
+
+    The sanity checks for whitelist and blacklist arguments are performed by
+    this factory; when used, the given value is checked against (at most) one
+    of them.
+
+    The return value tells whether to *skip* the given argument;
+    thus, it is False for "good" values!
+
+    >>> skip = make_skipfunc(whitelist='one\ntwo')
+    >>> skip('one')
+    False
+    >>> skip('three')
+    True
+
+    >>> make_skipfunc(blacklist='one\ntwo')('three')
+    False
+
+    The entries of <default_blacklist> are used if no whitelist is given:
+    >>> default_skipfunc = make_skipfunc()
+    >>> default_skipfunc('i18n_domain')
+    True
+
+    If even the default_blacklist is empty, nothing is skipped:
+
+    >>> skip_none = make_skipfunc(default_blacklist=None)
+    >>> skip_none('strangeprop')
+    False
+
+    """
+    assert not (whitelist and blacklist)
+    def make_set(s):
+        if s is None:
+            return set()
+        if isinstance(s, basestring):
+            s = filter(None,
+                       [item.strip()
+                        for item in s.splitlines()])
+        return set(s)
+
+    whitelist = make_set(whitelist)
+    has_whitelist = bool(whitelist)
+
+    if has_whitelist:
+        has_blacklist = False
+    else:
+        blacklist = make_set(blacklist)
+        blacklist.update(make_set(default_blacklist))
+        has_blacklist = bool(blacklist)
+
+    def check_whitelist(s):
+        return s not in whitelist
+
+    def check_blacklist(s):
+        return s in blacklist
+
+    def return_false(s):
+        return False
+
+    if has_whitelist:
+        return check_whitelist
+    elif has_blacklist:
+        return check_blacklist
+    else:
+        return return_false
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

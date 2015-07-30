@@ -6,6 +6,7 @@ from lxml import etree
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
+from quintagroup.transmogrifier.utils import make_skipfunc
 
 from OFS.interfaces import IPropertyManager
 from Products.GenericSetup.utils import PropertyManagerHelpers, NodeAdapterBase
@@ -19,11 +20,20 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
 
     _encoding = 'utf-8'  # overridden by __init__; preserved for subclassing
 
-    def __init__(self, encoding='utf-8', safe_decode=None):
+    def __init__(self, encoding='utf-8', safe_decode=None,
+                 whitelist=None, blacklist=None):
         """
         safe_decode -- a function which will decode all given non-unicode strings
                        to unicode without raising exceptions
+
+        whitelist -- a whitelist of properties to be read
+        blacklist -- a blacklist of properties to be skipped
+                     (only one of those can be specified)
+
+        Unless a whitelist is given, 'i18n_domain' properties are skipped.
         """
+        self._skip_this = make_skipfunc(whitelist, blacklist,
+                                        default_blacklist=['i18n_domain'])
         self._encoding = encoding or 'utf-8'
         self._safe_decode = safe_decode or None
 
@@ -44,10 +54,11 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         # if safe_decode is given, use it for *all* strings, including unicode;
         # it might serve additional purposes, e.g. removal of vertical tabs etc.
         safe_decode = self._safe_decode
+        skip = self._skip_this
 
         for prop_map in self.context._propertyMap():
             prop_id = prop_map['id']
-            if prop_id == 'i18n_domain':
+            if skip(prop_id):
                 continue
 
             # Don't export read-only nodes
@@ -179,6 +190,9 @@ class PropertiesExporterSection(object):
         self.exclude = filter(None, [i.strip() for i in
                               options.get('exclude', '').splitlines()])
 
+        # helper_kwargs are currently the only possibility to pass arguments
+        # to the helper, e.g. a safe_decode function.
+        # They can only be given by calling code, rather than by configuration.
         helper_kwargs = options.get('helper_kwargs', {})
         self.helper = Helper(**helper_kwargs)
         self.doc = etree.Element('properties')
