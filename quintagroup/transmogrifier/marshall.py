@@ -55,10 +55,6 @@ class MarshallerSection(object):
 
                 try:
                     content_type, length, data = self.atxml.marshall(obj, atns_exclude=atns_exclude)
-                    print 'MarshallerSection:'
-                    print ' * content_type: %r' % (content_type,)
-                    print ' * length:       %r' % (length,)
-                    print ' * data:         %r' % (data,)
                 except ConflictError:
                     raise
                 except Exception:

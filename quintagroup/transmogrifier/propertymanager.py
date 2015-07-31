@@ -12,11 +12,6 @@ from OFS.interfaces import IPropertyManager
 from Products.GenericSetup.utils import PropertyManagerHelpers, NodeAdapterBase
 
 
-DEBUG_COUNTDOWN = 2
-if DEBUG_COUNTDOWN:
-    import pdb
-
-
 class Helper(PropertyManagerHelpers, NodeAdapterBase):
     """ We need this class because PropertyManagerHelpers in _initProperties
         method uses _convertToBoolean and _getNodeText methods from
@@ -61,12 +56,6 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         # it might serve additional purposes, e.g. removal of vertical tabs etc.
         safe_decode = self._safe_decode
         skip = self._skip_this
-
-        global DEBUG_COUNTDOWN
-        if DEBUG_COUNTDOWN:
-            DEBUG_COUNTDOWN = max(DEBUG_COUNTDOWN-1, 0)
-            print 'DEBUG_COUNTDOWN -->', DEBUG_COUNTDOWN
-            pdb.set_trace()
 
         for prop_map in self.context._propertyMap():
             prop_id = prop_map['id']
