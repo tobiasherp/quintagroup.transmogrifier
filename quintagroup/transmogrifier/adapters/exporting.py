@@ -1,4 +1,5 @@
 from xml.dom import minidom
+from xml.parsers.expat import ExpatError
 
 from zope.interface import implements
 from zope.component import adapts
@@ -12,6 +13,9 @@ from Products.Archetypes import config as atcfg
 from collective.transmogrifier.interfaces import ITransmogrifier
 
 from quintagroup.transmogrifier.interfaces import IExportDataCorrector
+from quintagroup.transmogrifier.utils import safe_decode
+
+from traceback import print_exc
 
 
 class ReferenceExporter(object):
@@ -25,7 +29,7 @@ class ReferenceExporter(object):
         self.transmogrifier = transmogrifier
 
     def __call__(self, data):
-        data['data'] = self.exportReferences(data['data'])
+        data['data'] = self.exportReferences(safe_decode(data['data']))
         return data
 
     def exportReferences(self, xml):
@@ -33,28 +37,49 @@ class ReferenceExporter(object):
         """
         if xml is None:
             return u""
-        doc = minidom.parseString(xml)
-        root = doc.documentElement
-        for fname in self.context.Schema().keys():
-            if not isinstance(self.context.Schema()[fname], atapi.ReferenceField):
-                continue
-            values = self.context[fname]
-            if not values:
-                continue
-            elem = doc.createElement("field")
-            attr = doc.createAttribute("name")
-            attr.value = fname
-            elem.setAttributeNode(attr)
-            if type(values) not in (tuple, list):
-                values = [values]
-            for value in values:
-                ref = doc.createElement('reference')
-                uid = doc.createElement('uid')
-                value = doc.createTextNode(str(value))
-                uid.appendChild(value)
-                ref.appendChild(uid)
-                elem.appendChild(ref)
-            root.appendChild(elem)
+        try:
+            doc = minidom.parseString(xml)
+        except ExpatError as e:
+            print '-->' * 26
+            print 'exception:', e
+            ei = {}
+            for a in ('code', 'lineno', 'offset'):
+                ei[a] = getattr(e, a, None)
+                print 'e.%-10s %r' % (a+':', ei[a])
+            print '-!-' * 26
+            print_exc()
+            print '-!-' * 26
+            lineno = ei['lineno']
+            offset = ei['offset']
+
+            print 'xml[:50]: %r' % (xml[:50],)
+            print 'line%6d: %r' % (lineno, xml.splitlines()[lineno-1])
+            print 'char%6d: %*s' % (offset, offset+2, '^')
+
+            print '<--' * 26
+            raise
+        else:
+            root = doc.documentElement
+            for fname in self.context.Schema().keys():
+                if not isinstance(self.context.Schema()[fname], atapi.ReferenceField):
+                    continue
+                values = self.context[fname]
+                if not values:
+                    continue
+                elem = doc.createElement("field")
+                attr = doc.createAttribute("name")
+                attr.value = fname
+                elem.setAttributeNode(attr)
+                if type(values) not in (tuple, list):
+                    values = [values]
+                for value in values:
+                    ref = doc.createElement('reference')
+                    uid = doc.createElement('uid')
+                    value = doc.createTextNode(str(value))
+                    uid.appendChild(value)
+                    ref.appendChild(uid)
+                    elem.appendChild(ref)
+                root.appendChild(elem)
         return doc.toxml('utf-8')
 
 
