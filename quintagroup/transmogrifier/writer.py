@@ -17,6 +17,14 @@ from quintagroup.transmogrifier.utils import add_info
 
 
 class WriterSection(object):
+    """
+    Write the contents of the pipeline to a tarball (default), a directory,
+    or create a snapshot.
+
+    To make use of a 'tarball' export (e.g. offer it for download), your
+    calling code needs to access the information added to the transmogrifier.
+
+    """
     classProvides(ISectionBlueprint)
     implements(ISection)
 
@@ -41,7 +49,7 @@ class WriterSection(object):
         elif context_type == 'tarball':
             self.export_context = context.TarballExportContext(setup_tool)
         elif context_type == 'snapshot':
-            items = ('snapshot', ) + time.gmtime()[:6]
+            items = ('snapshot',) + time.gmtime()[:6]
             snapshot_id = '%s-%4d%02d%02d%02d%02d%02d' % items
             self.export_context = context.SnapshotExportContext(setup_tool, snapshot_id)
         else:

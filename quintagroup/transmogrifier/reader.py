@@ -20,6 +20,10 @@ from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
 
 class ReaderSection(object):
+    """
+    Read an export (like created by a .writer.WriterSection)
+    and inject the contents into the pipeline.
+    """
     classProvides(ISectionBlueprint)
     implements(ISection)
 
@@ -57,6 +61,7 @@ class ReaderSection(object):
         if context_type == 'directory':
             self.import_context = context.DirectoryImportContext(setup_tool, path)
         elif context_type == 'tarball':
+            # XXX silent error if path doesn't exist?!
             if os.path.exists(path):
                 archive = file(path, 'rb')
                 archive_bits = archive.read()
