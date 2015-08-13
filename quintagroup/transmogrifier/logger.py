@@ -17,6 +17,7 @@ class LoggerSection(object):
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
+        self.count = transmogrifier.create_itemcounter(name)
         keys = options.get('keys') or ''
         self.pathkey = options.get('path-key', '_path').strip()
         self.keys = Matcher(*keys.splitlines())
@@ -27,8 +28,10 @@ class LoggerSection(object):
     def __iter__(self):
         start_time = time()
         count = 0
+        count_ = self.count
         problematic = 0
         for item in self.previous:
+            count_('got')
             # source sections add store path of current generated item in annotation
             # it gives posibility to monitor what items go through all pipeline
             # sections between source section and this section and what don't
@@ -43,6 +46,7 @@ class LoggerSection(object):
             if items:
                 msg = ", ".join(items)
                 logging.getLogger(self.logger).info(msg)
+            count_('forwarded')
             yield item
 
         working_time = int(round(time() - start_time))

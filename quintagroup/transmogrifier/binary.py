@@ -24,6 +24,7 @@ class FileExporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -38,16 +39,20 @@ class FileExporterSection(object):
                                    transmogrifier, name, options)
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -88,7 +93,9 @@ class FileExporterSection(object):
                     }
                 if binary_field_names:
                     item[self.excludekey] = binary_field_names
+                    count('changed')
 
+            count('forwarded')
             yield item
 
     def extractFile(self, obj, field):
@@ -164,6 +171,7 @@ class FileImporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -173,27 +181,33 @@ class FileImporterSection(object):
                                    transmogrifier, name, options)
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
             contextkey = self.contextkey(*item.keys())[0]
 
             if not (pathkey and fileskey):
+                count('forwarded')
                 yield item
                 continue
             if 'file-fields' not in item[fileskey]:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
             if IBaseObject.providedBy(obj):
                 try:
                     manifest = item[fileskey]['file-fields']['data']
+                    changed = False
                     for field, info in self.parseManifest(manifest).items():
                         fname = info['filename']
                         ct = info['mimetype']
@@ -208,6 +222,10 @@ class FileImporterSection(object):
                             continue
                         mutator = obj.getField(field).getMutator(obj)
                         mutator(data, filename=fname, mimetype=ct)
+                        changed = True
+                        count('changes')
+                    if changed:
+                        count('changed')
                 except ConflictError:
                     raise
                 except Exception:
@@ -216,6 +234,7 @@ class FileImporterSection(object):
                     traceback.print_exc()
                     print '-' * 60
 
+            count('forwarded')
             yield item
 
     def parseManifest(self, manifest):

@@ -31,7 +31,9 @@ class ReaderSection(object):
         self.previous = previous
         self.context = transmogrifier.context
         self.options = options
+        self.count = transmogrifier.create_itemcounter(name)
 
+        # for pipeline tracking (quintagroup.transmogrifier.logger):
         self.anno = IAnnotations(transmogrifier)
         self.storage = self.anno.setdefault(VALIDATIONKEY, [])
 
@@ -109,18 +111,22 @@ class ReaderSection(object):
         return item
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('passed-through')
             yield item
 
         item = self.readFiles(self.prefix)
         item[self.contextkey] = self.import_context
         self.storage.append(item[self.pathkey])
+        count('created')
         yield item
 
         for item in self.walk(self.prefix):
             # add import context to item (some next section may use it)
             item[self.contextkey] = self.import_context
             self.storage.append(item[self.pathkey])
+            count('created')
             yield item
 
         if VALIDATIONKEY in self.anno:

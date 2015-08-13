@@ -17,9 +17,12 @@ class ReferencesImporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('passed-through')
             yield item
         # finalization of importing references
         rc = getToolByName(self.context, atcfg.REFERENCE_CATALOG)

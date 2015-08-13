@@ -22,6 +22,7 @@ class MarshallerSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -33,16 +34,20 @@ class MarshallerSection(object):
         self.atxml = registry.getComponent("atxml")
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(str(path), None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -67,7 +72,9 @@ class MarshallerSection(object):
                         'name': '.marshall.xml',
                         'data': data,
                     }
+                    count('changed')
 
+            count('forwarded')
             yield item
 
 
@@ -78,6 +85,7 @@ class DemarshallerSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -91,20 +99,25 @@ class DemarshallerSection(object):
         self.atxml = registry.getComponent("atxml")
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
+                count('forwarded')
                 yield item
                 continue
             if 'marshall' not in item[fileskey]:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(str(path), None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -114,6 +127,7 @@ class DemarshallerSection(object):
                     try:
                         self.atxml.demarshall(obj, data)
                     except SyntaxError:
+                        count('forwarded')
                         yield item
                         continue
 
@@ -139,6 +153,7 @@ class DemarshallerSection(object):
                     else:
                         event.notify(ObjectEditedEvent(obj))
                         obj.at_post_edit_script()
+                    count('changed')
                 except ConflictError:
                     raise
                 except Exception:
@@ -147,6 +162,7 @@ class DemarshallerSection(object):
                     traceback.print_exc()
                     print '-' * 60
 
+            count('forwarded')
             yield item
 
         # updating security settings on demarshalled content

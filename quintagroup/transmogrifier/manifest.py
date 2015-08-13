@@ -53,6 +53,7 @@ class ManifestExporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.entrieskey = defaultMatcher(options, 'entries-key', name, 'entries')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -60,9 +61,12 @@ class ManifestExporterSection(object):
         self.doc = minidom.Document()
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             entrieskey = self.entrieskey(*item.keys())[0]
             if not entrieskey:
+                count('forwarded')
                 yield item
                 continue
 
@@ -74,7 +78,9 @@ class ManifestExporterSection(object):
                     'name': '.objects.xml',
                     'data': manifest,
                 }
+                count('changed')
 
+            count('forwarded')
             yield item
 
     def createManifest(self, entries):
@@ -120,6 +126,7 @@ class ManifestImporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -142,10 +149,12 @@ class ManifestImporterSection(object):
         self.it = IteratorWithLookahead(extractor)
 
     def __iter__(self):
+        count = self.count
         item = None
         folder_path = None
         while True:
             if folder_path == '':
+                count('created')
                 yield item
             manifest = self.manifests.get(folder_path, {})
             for id_ in manifest.keys():
@@ -159,6 +168,7 @@ class ManifestImporterSection(object):
                     self.storage.append(path)
                     item = {pathkey: path}
                 item[self.typekey] = manifest[id_]
+                count('created')
                 yield item
             manifest = {}
             # consume any remaining unlisted entries of this folder
