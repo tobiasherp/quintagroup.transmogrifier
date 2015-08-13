@@ -1,5 +1,6 @@
 import mimetypes
 import time
+from os.path import normpath
 
 from zope.interface import classProvides, implements
 
@@ -41,10 +42,15 @@ class WriterSection(object):
             self.prefix = ''
 
         context_type = options.get('context', 'tarball').strip()
+        info = {'context_type': context_type,
+                }
 
         setup_tool = utils.getToolByName(self.context, 'portal_setup')
         if context_type == 'directory':
             profile_path = options.get('path', '')
+            info['output_dir'] = normpath('/'.join(filter(None, (profile_path,
+                                                        self.prefix,
+                                                        ))))
             self.export_context = context.DirectoryExportContext(setup_tool, profile_path)
         elif context_type == 'tarball':
             self.export_context = context.TarballExportContext(setup_tool)
@@ -53,13 +59,13 @@ class WriterSection(object):
             snapshot_id = '%s-%4d%02d%02d%02d%02d%02d' % items
             self.export_context = context.SnapshotExportContext(setup_tool, snapshot_id)
         else:
+            info['context_type'] = 'tarball'
             self.export_context = context.TarballExportContext(setup_tool)
+        info['context'] = self.export_context
         add_info(transmogrifier,
                  'export_context',
                  name,
-                 {'context_type': context_type or 'tarball',
-                  'context':      self.export_context,
-                  })
+                 info)
 
     def __iter__(self):
         for item in self.previous:
