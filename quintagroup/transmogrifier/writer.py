@@ -32,6 +32,7 @@ class WriterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -68,13 +69,16 @@ class WriterSection(object):
                  info)
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             item['_export_context'] = self.export_context
 
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):  # path doesn't exist or no data to write
+                count('forwarded')
                 yield item
                 continue
 
@@ -85,6 +89,7 @@ class WriterSection(object):
             else:
                 item_path = self.prefix
 
+            written = False
             for k, v in item[fileskey].items():
                 # contenttype is only used to determine whether to open the
                 # output file in text or binary mode.
@@ -98,5 +103,9 @@ class WriterSection(object):
                 else:
                     data = v['data']
                 self.export_context.writeDataFile(v['name'], data, contenttype, subdir=item_path)
+                written = True
 
+            if written:
+                count('written')
+            count('forwarded')
             yield item

@@ -28,6 +28,7 @@ class PortletsExporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -35,20 +36,24 @@ class PortletsExporterSection(object):
         self.doc = minidom.Document()
 
     def __iter__(self):
+        count = self.count
         self.portlet_schemata = dict([(iface, name, ) for name, iface in
             getUtilitiesFor(IPortletTypeInterface)])
         self.portlet_managers = list(getUtilitiesFor(IPortletManager))
 
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -72,6 +77,8 @@ class PortletsExporterSection(object):
                         'name': '.portlets.xml',
                         'data': data,
                     }
+                    count('changed')
+            count('forwarded')
             yield item
 
     def exportAssignments(self, obj):
@@ -150,18 +157,22 @@ class PortletsImporterSection(object):
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
+                count('forwarded')
                 yield item
                 continue
             if 'portlets' not in item[fileskey]:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
+            changed = False
             # Purge assignments if 'purge' option set to true
             if self.purge:
                 for name, portletManager in getUtilitiesFor(IPortletManager):
@@ -169,6 +180,7 @@ class PortletsImporterSection(object):
                     if assignable is not None:
                         for key in list(assignable.keys()):
                             del assignable[key]
+                            changed = True
 
             if ILocalPortletAssignable.providedBy(obj):
                 data = None
@@ -178,9 +190,14 @@ class PortletsImporterSection(object):
                 for elem in root.childNodes:
                     if elem.nodeName == 'assignment':
                         self.importAssignment(obj, elem)
+                        changed = True
                     elif elem.nodeName == 'blacklist':
                         self.importBlacklist(obj, elem)
+                        changed = True
 
+            if changed:
+                count('changed')
+            count('forwarded')
             yield item
 
     def importAssignment(self, obj, node):

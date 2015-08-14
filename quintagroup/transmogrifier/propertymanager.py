@@ -184,6 +184,7 @@ class PropertiesExporterSection(object):
         print name.join((' [', '].init'))
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -203,17 +204,21 @@ class PropertiesExporterSection(object):
     def __iter__(self):
         helper = self.helper
         doc = self.doc
+        count = self.count
 
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -239,7 +244,9 @@ class PropertiesExporterSection(object):
                         'name': '.properties.xml',
                         'data': data,
                     }
+                    count('changed')
 
+            count('forwarded')
             yield item
 
 
@@ -250,6 +257,7 @@ class PropertiesImporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -263,21 +271,26 @@ class PropertiesImporterSection(object):
 
     def __iter__(self):
         helper = self.helper
+        count = self.count
 
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
+                count('forwarded')
                 yield item
                 continue
             if 'propertymanager' not in item[fileskey]:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -298,5 +311,7 @@ class PropertiesImporterSection(object):
 
                 helper.context = obj
                 helper._initProperties(doc)
+                count('changed')
 
+            count('forwarded')
             yield item
