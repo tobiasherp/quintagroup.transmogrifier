@@ -21,7 +21,8 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
     _encoding = 'utf-8'  # overridden by __init__; preserved for subclassing
 
     def __init__(self, encoding='utf-8', safe_decode=None,
-                 whitelist=None, blacklist=None):
+                 whitelist=None, blacklist=None,
+                 verbose=False):
         """
         safe_decode -- a function which will decode all given non-unicode strings
                        to unicode without raising exceptions
@@ -33,7 +34,7 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         Unless a whitelist is given, 'i18n_domain' properties are skipped.
         """
         self._skip_this = make_skipfunc(whitelist, blacklist,
-                                        verbose=True,
+                                        verbose=False,
                                         default_blacklist=['i18n_domain'])
         self._encoding = encoding or 'utf-8'
         self._safe_decode = safe_decode or None
