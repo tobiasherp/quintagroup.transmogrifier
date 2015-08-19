@@ -5,6 +5,7 @@ from zope.interface import classProvides, implements
 from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.utils import make_itemInfo
 try:
     from collective.transmogrifier.genericsetup import IMPORT_CONTEXT
 except ImportError:
@@ -32,6 +33,7 @@ class ReaderSection(object):
         self.context = transmogrifier.context
         self.options = options
         self.count = transmogrifier.create_itemcounter(name)
+        self.name = name
 
         # for pipeline tracking (quintagroup.transmogrifier.logger):
         self.anno = IAnnotations(transmogrifier)
@@ -112,14 +114,17 @@ class ReaderSection(object):
 
     def __iter__(self):
         count = self.count
+        itemInfo = make_itemInfo(self.name)
         for item in self.previous:
             count('passed-through')
+            itemInfo(item)
             yield item
 
         item = self.readFiles(self.prefix)
         item[self.contextkey] = self.import_context
         self.storage.append(item[self.pathkey])
         count('created')
+        itemInfo(item, shownext=2)
         yield item
 
         for item in self.walk(self.prefix):
@@ -127,6 +132,7 @@ class ReaderSection(object):
             item[self.contextkey] = self.import_context
             self.storage.append(item[self.pathkey])
             count('created')
+            itemInfo(item)
             yield item
 
         if VALIDATIONKEY in self.anno:

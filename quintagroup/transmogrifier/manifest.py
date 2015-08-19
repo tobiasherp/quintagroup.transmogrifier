@@ -7,6 +7,7 @@ from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
+from collective.transmogrifier.utils import make_itemInfo
 
 try:
     from collections import OrderedDict
@@ -54,6 +55,7 @@ class ManifestExporterSection(object):
         self.previous = previous
         self.context = transmogrifier.context
         self.count = transmogrifier.create_itemcounter(name)
+        self.name = name
 
         self.entrieskey = defaultMatcher(options, 'entries-key', name, 'entries')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -62,12 +64,14 @@ class ManifestExporterSection(object):
 
     def __iter__(self):
         count = self.count
+        itemInfo = make_itemInfo(self.name)
         for item in self.previous:
             count('got')
             entrieskey = self.entrieskey(*item.keys())[0]
             if not entrieskey:
                 count('forwarded')
                 yield item
+                itemInfo(item)
                 continue
 
             manifest = self.createManifest(item[entrieskey])
@@ -78,7 +82,10 @@ class ManifestExporterSection(object):
                     'name': '.objects.xml',
                     'data': manifest,
                 }
+                itemInfo(item, showone='hasmanifest')
                 count('changed')
+            else:
+                itemInfo(item)  # for correct counting only
 
             count('forwarded')
             yield item
@@ -127,6 +134,7 @@ class ManifestImporterSection(object):
         self.previous = previous
         self.context = transmogrifier.context
         self.count = transmogrifier.create_itemcounter(name)
+        self.name = name
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -150,12 +158,14 @@ class ManifestImporterSection(object):
 
     def __iter__(self):
         count = self.count
+        itemInfo = make_itemInfo(self.name)
         item = None
         folder_path = None
         while True:
             if folder_path == '':
                 count('created')
                 yield item
+                itemInfo(item, showone='rootdir')
             manifest = self.manifests.get(folder_path, {})
             for id_ in manifest.keys():
                 self.bufferTo(folder_path, id_, manifest)
@@ -170,6 +180,7 @@ class ManifestImporterSection(object):
                 item[self.typekey] = manifest[id_]
                 count('created')
                 yield item
+                itemInfo(item, showone='hastype')
             manifest = {}
             # consume any remaining unlisted entries of this folder
             self.bufferTo(folder_path, None, manifest)
