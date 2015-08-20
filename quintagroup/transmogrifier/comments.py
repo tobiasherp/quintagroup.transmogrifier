@@ -20,6 +20,7 @@ class CommentsExporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
@@ -27,16 +28,20 @@ class CommentsExporterSection(object):
         self.doc = minidom.Document()
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -50,7 +55,9 @@ class CommentsExporterSection(object):
                         'name': '.comments.xml',
                         'data': data,
                     }
+                    count('changed')
 
+            count('forwarded')
             yield item
 
     def extractComments(self, container):
@@ -109,6 +116,7 @@ class CommentsImporterSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.count = transmogrifier.create_itemcounter(name)
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
@@ -116,21 +124,26 @@ class CommentsImporterSection(object):
         self.dtool = utils.getToolByName(self.context, 'portal_discussion')
 
     def __iter__(self):
+        count = self.count
         for item in self.previous:
+            count('got')
             pathkey = self.pathkey(*item.keys())[0]
             fileskey = self.fileskey(*item.keys())[0]
 
             if not (pathkey and fileskey):
+                count('forwarded')
                 yield item
                 continue
 
             if 'comments' not in item[fileskey]:
+                count('forwarded')
                 yield item
                 continue
 
             path = item[pathkey]
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
+                count('forwarded')
                 yield item
                 continue
 
@@ -143,12 +156,17 @@ class CommentsImporterSection(object):
 
             data = item[fileskey]['comments']['data']
             discussion_container._container.clear()
+            changed = False
             for id_, props in self.parseXML(data).items():
                 comment = DiscussionItem.DiscussionItem(id_)
                 discussion_container._container[id_] = comment
                 comment = comment.__of__(discussion_container)
                 self.updateDiscussionItem(comment, props)
+                changed = True
 
+            if changed:
+                count('changed')
+            count('forwarded')
             yield item
 
     def parseXML(self, data):
