@@ -36,7 +36,7 @@ def registerPersistentConfig(site, type_):
     config = anno.has_key(key) and anno[key] or None
 
     # unregister old config
-    name = 'persitent-%s' % type_
+    name = 'persistent-%s' % type_
     if name in configuration_registry._config_ids:
         configuration_registry._config_ids.remove(name)
         del configuration_registry._config_info[name]
